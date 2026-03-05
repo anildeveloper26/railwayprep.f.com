@@ -116,7 +116,8 @@ function TestCard({ test }: { test: MockTest }) {
       {/* Top Bar */}
       <div className="h-1.5 bg-gradient-to-r from-[#1a56db] to-[#3b82f6]" />
 
-      <div className="p-4">
+      <div className="flex flex-col h-full justify-between p-4">
+        <div className="">
         <div className="flex items-start justify-between gap-2 mb-3">
           <h3 className="font-semibold text-gray-800 text-sm leading-snug flex-1">{test.title}</h3>
           {test.isAttempted && <CheckCircle2 size={16} className="text-green-500 flex-shrink-0 mt-0.5" />}
@@ -162,6 +163,7 @@ function TestCard({ test }: { test: MockTest }) {
             </span>
           </div>
         )}
+        </div>
 
         <Link
           to="/take-test/$testId"

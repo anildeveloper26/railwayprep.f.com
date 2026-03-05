@@ -97,7 +97,7 @@ export function TakeTestPage() {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">
-                  {q.subject} · {q.topic}
+                  {q?.subject} · {q?.topic}
                 </span>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-sm font-semibold text-gray-700">Q{current + 1} of {questions.length}</span>
@@ -117,12 +117,12 @@ export function TakeTestPage() {
               </button>
             </div>
 
-            <p className="text-gray-900 font-medium text-base leading-relaxed">{q.questionText}</p>
+            <p className="text-gray-900 font-medium text-base leading-relaxed">{q?.questionText}</p>
           </div>
 
           {/* Options */}
           <div className="space-y-3">
-            {q.options.map((opt, i) => (
+            {q?.options.map((opt, i) => (
               <button
                 key={i}
                 onClick={() => selectAnswer(i)}
@@ -299,7 +299,7 @@ function ResultView({ test, questions, answers, totalTime, navigate }: {
           <h3 className="font-semibold text-gray-800 mb-4">Answer Review</h3>
           <div className="space-y-4">
             {questions.map((q, i) => {
-              const isCorrect = answers[i] === q.correctAnswer;
+              const isCorrect = answers[i] === q?.correctAnswer;
               const isWrong = answers[i] !== null && !isCorrect;
               return (
                 <div key={i} className={cn(
@@ -307,14 +307,14 @@ function ResultView({ test, questions, answers, totalTime, navigate }: {
                   isCorrect ? "bg-green-50 border-green-200" :
                   isWrong ? "bg-red-50 border-red-200" : "bg-gray-50 border-gray-200"
                 )}>
-                  <p className="text-sm font-medium text-gray-800 mb-2">{i + 1}. {q.questionText}</p>
+                  <p className="text-sm font-medium text-gray-800 mb-2">{i + 1}. {q?.questionText}</p>
                   <div className="text-xs space-y-1">
-                    <div className="text-green-700 font-medium">✓ Correct: {q.options[q.correctAnswer]}</div>
+                    <div className="text-green-700 font-medium">✓ Correct: {q?.options[q?.correctAnswer]}</div>
                     {isWrong && answers[i] !== null && (
-                      <div className="text-red-600">✗ Your answer: {q.options[answers[i]!]}</div>
+                      <div className="text-red-600">✗ Your answer: {q?.options[answers[i]!]}</div>
                     )}
                     {answers[i] === null && <div className="text-gray-400">— Skipped</div>}
-                    <div className="text-gray-500 mt-2 bg-white/70 rounded-lg p-2">{q.explanation}</div>
+                    <div className="text-gray-500 mt-2 bg-white/70 rounded-lg p-2">{q?.explanation}</div>
                   </div>
                 </div>
               );
