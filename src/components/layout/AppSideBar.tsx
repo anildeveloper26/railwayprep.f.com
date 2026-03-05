@@ -78,9 +78,9 @@ export function AppSideBar() {
             <div className="flex-1 min-w-0">
               <div className="text-white text-xs font-semibold truncate">{CURRENT_USER.name}</div>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="bg-yellow-400 text-yellow-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                {/* <span className="bg-yellow-400 text-yellow-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                   {CURRENT_USER.category}
-                </span>
+                </span> */}
                 <span className="text-blue-200 text-[10px] truncate">{CURRENT_USER.targetExam}</span>
               </div>
             </div>

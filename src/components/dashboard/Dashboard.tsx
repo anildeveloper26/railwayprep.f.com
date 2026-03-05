@@ -43,9 +43,9 @@ export function Dashboard() {
             </h1>
             <p className="text-blue-200 text-sm mt-1">
               Ready to crack {CURRENT_USER.targetExam}?
-              <span className="ml-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full">
+              {/* <span className="ml-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full">
                 {CURRENT_USER.category} Category
-              </span>
+              </span> */}
             </p>
           </div>
           <div className="flex items-center gap-3">
