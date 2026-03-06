@@ -1,25 +1,46 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Train, Loader2 } from "lucide-react";
-import Cookies from "js-cookie";
+import { toast } from "sonner";
+import { api } from "@/lib/api";
+import { setAccessToken, setStoredUser, type StoredUser } from "@/lib/store/auth";
 
-const EXAMS = ["RRB NTPC", "RRB Group D", "RRB JE", "RRB ALP", "Technician"];
-const CATEGORIES = ["UR", "SC", "ST", "OBC", "EWS"];
+const EXAMS = ["RRB NTPC", "RRB Group D", "RRB JE", "RRB ALP", "RPF"];
+const CATEGORIES = ["General", "OBC", "SC", "ST", "EWS"];
 
 export function RegisterPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
-    name: "", email: "", phone: "", password: "",
+    name: "", email: "", password: "",
     category: "SC", targetExam: "RRB NTPC",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1000));
-    Cookies.set("rrb_token", "mock_token_123", { expires: 7 });
-    navigate({ to: "/dashboard" });
+
+    try {
+      const res = await api.post<{ user: StoredUser; accessToken: string }>("/auth/register", {
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        category: form.category,
+        targetExam: form.targetExam,
+      });
+
+      setAccessToken(res.data.accessToken);
+      setStoredUser(res.data.user);
+      toast.success("Account created! Welcome to RailwayPrep.");
+      navigate({ to: "/dashboard" });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Registration failed";
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -39,7 +60,7 @@ export function RegisterPage() {
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
                 <input
-                  type="text" placeholder="Anil Kumar" required
+                  type="text" placeholder="Anil Kumar" required minLength={2}
                   value={form.name}
                   onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
@@ -55,25 +76,16 @@ export function RegisterPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
-                <input
-                  type="tel" placeholder="9876543210" required
-                  value={form.phone}
-                  onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                />
-              </div>
-              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Category</label>
                 <select
                   value={form.category}
                   onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition bg-white"
                 >
-                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  {CATEGORIES.map(c => <option key={c} value={c}>{c === "General" ? "General (UR)" : c}</option>)}
                 </select>
               </div>
-              <div className="col-span-2">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Target Exam</label>
                 <select
                   value={form.targetExam}
@@ -86,7 +98,7 @@ export function RegisterPage() {
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
                 <input
-                  type="password" placeholder="Create a password" required minLength={6}
+                  type="password" placeholder="Min 8 chars, 1 uppercase, 1 number" required minLength={8}
                   value={form.password}
                   onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
@@ -94,11 +106,16 @@ export function RegisterPage() {
               </div>
             </div>
 
-            {/* Category Benefit Note */}
-            {form.category !== "UR" && (
+            {form.category !== "General" && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-xs text-yellow-800">
                 <span className="font-semibold">{form.category} category benefit:</span> Age relaxation,
                 fee waiver & lower cutoff. Check the SC/ST/OBC Guide section for details.
+              </div>
+            )}
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-2.5">
+                {error}
               </div>
             )}
 

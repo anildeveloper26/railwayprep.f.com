@@ -1,7 +1,7 @@
-import Cookies from "js-cookie";
+import { getAccessToken } from "@/lib/store/auth";
 
 export async function authMiddleware({ location }: { location: { pathname: string } }) {
-  const token = Cookies.get("rrb_token");
+  const token = getAccessToken();
   const publicRoutes = ["/", "/login", "/register"];
 
   if (!token && !publicRoutes.includes(location.pathname)) {

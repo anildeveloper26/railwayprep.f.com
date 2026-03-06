@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Train, Eye, EyeOff, Loader2 } from "lucide-react";
-import Cookies from "js-cookie";
+import { toast } from "sonner";
+import { api } from "@/lib/api";
+import { setAccessToken, setStoredUser, type StoredUser } from "@/lib/store/auth";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -14,23 +16,29 @@ export function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    await new Promise(r => setTimeout(r, 800));
-    // Mock auth — accept any credentials
-    if (form.email && form.password) {
-      Cookies.set("rrb_token", "mock_token_123", { expires: 7 });
+
+    try {
+      const res = await api.post<{ user: StoredUser; accessToken: string }>("/auth/login", {
+        email: form.email,
+        password: form.password,
+      });
+
+      setAccessToken(res.data.accessToken);
+      setStoredUser(res.data.user);
+      toast.success("Welcome back!");
       navigate({ to: "/dashboard" });
-    } else {
-      setError("Please enter email and password.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Login failed";
+      setError(msg);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1e3a8a] via-[#1a56db] to-[#3b82f6] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Card */}
         <div className="bg-white rounded-2xl shadow-2xl p-8">
-          {/* Logo */}
           <div className="text-center mb-8">
             <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
               <Train size={28} className="text-white" />
@@ -39,10 +47,9 @@ export function LoginPage() {
             <p className="text-gray-500 text-sm mt-1">Sign in to continue your preparation</p>
           </div>
 
-          {/* Demo Credentials Banner */}
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-6 text-center">
             <p className="text-blue-700 text-xs font-medium">
-              Demo: use any email & password to login
+              Demo: <span className="font-mono">admin@railwayprep.in</span> / <span className="font-mono">Admin@1234</span>
             </p>
           </div>
 

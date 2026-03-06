@@ -1,37 +1,24 @@
 import { useState } from "react";
 import { Link, Outlet, useLocation } from "@tanstack/react-router";
 import {
-  LayoutDashboard,
-  FileText,
-  BookOpen,
-  Bell,
-  Calendar,
-  ShieldCheck,
-  BarChart2,
-  Trophy,
-  CreditCard,
-  Settings,
-  LogOut,
-  Train,
-  Menu,
-  X,
-  ChevronRight,
-  UserCircle,
+  LayoutDashboard, FileText, BookOpen, Bell, Calendar,
+  ShieldCheck, BarChart2, Trophy, CreditCard, Settings,
+  LogOut, Train, Menu, X, ChevronRight, UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CURRENT_USER } from "@/lib/constants/mockData";
-import Cookies from "js-cookie";
+import { getStoredUser, clearAuth } from "@/lib/store/auth";
+import { api } from "@/lib/api";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard",    path: "/dashboard" },
-  { icon: FileText,        label: "Mock Tests",   path: "/mock-tests" },
-  { icon: BookOpen,        label: "PYQ Bank",     path: "/pyq" },
-  { icon: Bell,            label: "Notifications",path: "/notifications" },
-  { icon: Calendar,        label: "Study Planner",path: "/planner" },
+  { icon: LayoutDashboard, label: "Dashboard",       path: "/dashboard" },
+  { icon: FileText,        label: "Mock Tests",      path: "/mock-tests" },
+  { icon: BookOpen,        label: "PYQ Bank",        path: "/pyq" },
+  { icon: Bell,            label: "Notifications",   path: "/notifications" },
+  { icon: Calendar,        label: "Study Planner",   path: "/planner" },
   { icon: ShieldCheck,     label: "SC/ST/OBC Guide", path: "/reservation" },
-  { icon: BarChart2,       label: "Analytics",    path: "/analytics" },
-  { icon: Trophy,          label: "Leaderboard",  path: "/leaderboard" },
-  { icon: CreditCard,      label: "Subscription", path: "/subscription" },
+  { icon: BarChart2,       label: "Analytics",       path: "/analytics" },
+  { icon: Trophy,          label: "Leaderboard",     path: "/leaderboard" },
+  { icon: CreditCard,      label: "Subscription",    path: "/subscription" },
 ];
 
 const adminItems = [
@@ -42,11 +29,13 @@ export function AppSideBar() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const user = getStoredUser();
 
   const isActive = (path: string) => location.pathname === path;
 
-  const handleLogout = () => {
-    Cookies.remove("rrb_token");
+  const handleLogout = async () => {
+    try { await api.post("/auth/logout"); } catch { /* ignore */ }
+    clearAuth();
     window.location.href = "/";
   };
 
@@ -69,19 +58,19 @@ export function AppSideBar() {
       </div>
 
       {/* User Badge */}
-      {!collapsed && (
+      {!collapsed && user && (
         <div className="mx-3 mt-3 p-3 bg-white/10 rounded-xl">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
               <UserCircle className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-white text-xs font-semibold truncate">{CURRENT_USER.name}</div>
+              <div className="text-white text-xs font-semibold truncate">{user.name}</div>
               <div className="flex items-center gap-1.5 mt-0.5">
-                {/* <span className="bg-yellow-400 text-yellow-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                  {CURRENT_USER.category}
-                </span> */}
-                <span className="text-blue-200 text-[10px] truncate">{CURRENT_USER.targetExam}</span>
+                <span className="bg-yellow-400 text-yellow-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  {user.category}
+                </span>
+                <span className="text-blue-200 text-[10px] truncate">{user.targetExam}</span>
               </div>
             </div>
           </div>
@@ -122,29 +111,33 @@ export function AppSideBar() {
           </Link>
         ))}
 
-        {!collapsed && (
-          <div className="text-blue-300 text-[10px] font-semibold uppercase tracking-wider px-2 mt-4 mb-2">
-            Management
-          </div>
-        )}
-        {adminItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            onClick={() => setMobileOpen(false)}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group",
-              isActive(item.path)
-                ? "bg-white/20 text-white font-semibold"
-                : "text-blue-100 hover:bg-white/10 hover:text-white",
-              collapsed ? "justify-center px-2" : ""
+        {user?.role === "admin" && (
+          <>
+            {!collapsed && (
+              <div className="text-blue-300 text-[10px] font-semibold uppercase tracking-wider px-2 mt-4 mb-2">
+                Management
+              </div>
             )}
-            title={collapsed ? item.label : undefined}
-          >
-            <item.icon className="w-4.5 h-4.5 flex-shrink-0 text-blue-200 group-hover:text-white" size={18} />
-            {!collapsed && <span className="flex-1">{item.label}</span>}
-          </Link>
-        ))}
+            {adminItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setMobileOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group",
+                  isActive(item.path)
+                    ? "bg-white/20 text-white font-semibold"
+                    : "text-blue-100 hover:bg-white/10 hover:text-white",
+                  collapsed ? "justify-center px-2" : ""
+                )}
+                title={collapsed ? item.label : undefined}
+              >
+                <item.icon className="w-4.5 h-4.5 flex-shrink-0 text-blue-200 group-hover:text-white" size={18} />
+                {!collapsed && <span className="flex-1">{item.label}</span>}
+              </Link>
+            ))}
+          </>
+        )}
       </nav>
 
       {/* Bottom */}
@@ -170,7 +163,6 @@ export function AppSideBar() {
         "hidden md:flex flex-col bg-gradient-to-b from-[#1e3a8a] to-[#1a56db] transition-all duration-300 shadow-xl flex-shrink-0",
         collapsed ? "w-16" : "w-60"
       )}>
-        {/* Collapse Toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="absolute top-4 -right-3 z-50 w-6 h-6 bg-white border border-gray-200 rounded-full shadow flex items-center justify-center hover:bg-gray-50"
@@ -183,10 +175,7 @@ export function AppSideBar() {
 
       {/* Mobile Overlay */}
       {mobileOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setMobileOpen(false)} />
       )}
 
       {/* Mobile Sidebar */}
@@ -201,10 +190,7 @@ export function AppSideBar() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Mobile Top Bar */}
         <header className="md:hidden flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200 shadow-sm">
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="p-1.5 rounded-lg hover:bg-gray-100"
-          >
+          <button onClick={() => setMobileOpen(true)} className="p-1.5 rounded-lg hover:bg-gray-100">
             <Menu size={20} />
           </button>
           <div className="flex items-center gap-2">
