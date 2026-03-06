@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate } from "@tanstack/react-router";
+import { useParams, useRouter } from "next/navigation";
 import {
   Clock, ChevronLeft, ChevronRight, Flag, CheckCircle2,
   AlertTriangle, SkipForward, Send, Loader2,
@@ -52,8 +54,9 @@ interface SubmittedAttempt {
 // ─── TakeTestPage ─────────────────────────────────────────────────────────────
 
 export function TakeTestPage() {
-  const { testId } = useParams({ from: "/_layout/take-test/$testId" });
-  const navigate = useNavigate();
+  const params = useParams();
+  const testId = params.testId as string;
+  const router = useRouter();
 
   const { data: testData, isLoading, error } = useQuery({
     queryKey: ["test", testId],
@@ -147,7 +150,7 @@ export function TakeTestPage() {
         test={reviewTest ?? test}
         attempt={attempt}
         answerMap={answerMap}
-        navigate={navigate}
+        router={router}
       />
     );
   }
@@ -289,8 +292,6 @@ export function TakeTestPage() {
             </button>
           </div>
         </div>
-
-        {/* Question Navigator */}
         <div className="w-56 bg-white border-l border-gray-100 p-4 overflow-y-auto">
           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Question Navigator</h3>
           <div className="grid grid-cols-5 gap-1.5">
@@ -360,12 +361,12 @@ export function TakeTestPage() {
 // ─── ResultView ───���───────────────────────────────────────────────────────────
 
 function ResultView({
-  test, attempt, answerMap, navigate,
+  test, attempt, answerMap, router,
 }: {
   test: ApiTest;
   attempt: SubmittedAttempt;
   answerMap: Record<string, OptionKey | null>;
-  navigate: ReturnType<typeof useNavigate>;
+  router: ReturnType<typeof useRouter>;
 }) {
   const { score, totalMarks, percentage, correctAnswers, wrongAnswers, unanswered, timeTaken } = attempt;
 
@@ -449,13 +450,13 @@ function ResultView({
 
         <div className="flex gap-3">
           <button
-            onClick={() => navigate({ to: "/mock-tests" })}
+            onClick={() => router.push("/mock-tests")}
             className="flex-1 border border-gray-200 py-3 rounded-xl text-sm font-medium hover:bg-gray-50 transition"
           >
             All Tests
           </button>
           <button
-            onClick={() => navigate({ to: "/analytics" })}
+            onClick={() => router.push("/analytics")}
             className="flex-1 bg-blue-600 text-white py-3 rounded-xl text-sm font-semibold hover:bg-blue-700 transition"
           >
             View Analytics

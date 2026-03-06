@@ -15,19 +15,25 @@ export interface StoredUser {
   avatar?: string;
 }
 
+const isBrowser = typeof window !== "undefined";
+
 export function getAccessToken(): string | null {
+  if (!isBrowser) return null;
   return localStorage.getItem(ACCESS_TOKEN_KEY);
 }
 
 export function setAccessToken(token: string): void {
+  if (!isBrowser) return;
   localStorage.setItem(ACCESS_TOKEN_KEY, token);
 }
 
 export function clearAccessToken(): void {
+  if (!isBrowser) return;
   localStorage.removeItem(ACCESS_TOKEN_KEY);
 }
 
 export function getStoredUser(): StoredUser | null {
+  if (!isBrowser) return null;
   const raw = localStorage.getItem(USER_KEY);
   if (!raw) return null;
   try {
@@ -38,10 +44,12 @@ export function getStoredUser(): StoredUser | null {
 }
 
 export function setStoredUser(user: StoredUser): void {
+  if (!isBrowser) return;
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
 export function clearAuth(): void {
+  if (!isBrowser) return;
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
 }

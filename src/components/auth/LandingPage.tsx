@@ -1,4 +1,6 @@
-import { Link } from "@tanstack/react-router";
+"use client";
+
+import Link from "next/link";
 import {
   Train, BookOpen, BarChart2, Trophy, Bell, Calendar,
   ShieldCheck, ArrowRight, CheckCircle, Users, Star,
@@ -41,11 +43,11 @@ export function LandingPage() {
             <span className="font-bold text-gray-900 text-lg">RailwayPrep</span>
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/login" className="text-sm text-gray-600 hover:text-gray-900 font-medium">
+            <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900 font-medium">
               Login
             </Link>
             <Link
-              to="/register"
+              href="/register"
               className="bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
             >
               Start Free
@@ -71,13 +73,13 @@ export function LandingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              to="/register"
+              href="/register"
               className="flex items-center justify-center gap-2 bg-white text-blue-700 font-bold px-7 py-3.5 rounded-xl hover:bg-blue-50 transition-all shadow-lg"
             >
               Start Free Today <ArrowRight size={18} />
             </Link>
             <Link
-              to="/login"
+              href="/login"
               className="flex items-center justify-center gap-2 border-2 border-white/40 text-white font-semibold px-7 py-3.5 rounded-xl hover:bg-white/10 transition-all"
             >
               I have an account
@@ -166,7 +168,7 @@ export function LandingPage() {
             ))}
           </div>
           <Link
-            to="/register"
+            href="/register"
             className="inline-flex items-center gap-2 mt-8 bg-blue-600 text-white font-bold px-8 py-3.5 rounded-xl hover:bg-blue-700 transition-colors shadow-lg"
           >
             Get Started Free <ArrowRight size={18} />

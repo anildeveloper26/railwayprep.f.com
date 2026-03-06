@@ -1,4 +1,6 @@
-import { Link } from "@tanstack/react-router";
+"use client";
+
+import Link from "next/link";
 import {
   FileText, BookOpen, Bell, BarChart2, Trophy, Calendar,
   TrendingUp, Clock, Target, Zap, ChevronRight, ArrowRight,
@@ -111,7 +113,7 @@ export function Dashboard() {
               <Zap size={16} className="text-yellow-300" />
               <span className="text-sm">Upgrade to unlock unlimited mock tests & analytics</span>
             </div>
-            <Link to="/subscription" className="bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-yellow-300">
+            <Link href="/subscription" className="bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-yellow-300">
               Upgrade ₹199/mo
             </Link>
           </div>
@@ -132,7 +134,7 @@ export function Dashboard() {
               )}
             </div>
           </div>
-          <Link to="/notifications" className="text-green-700 text-sm font-medium flex items-center gap-1 hover:text-green-900">
+          <Link href="/notifications" className="text-green-700 text-sm font-medium flex items-center gap-1 hover:text-green-900">
             View <ChevronRight size={14} />
           </Link>
         </div>
@@ -143,7 +145,7 @@ export function Dashboard() {
         {quickStats.map(stat => (
           <Link
             key={stat.label}
-            to={stat.link}
+            href={stat.link}
             className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
           >
             <div className={`w-9 h-9 rounded-lg ${stat.color} flex items-center justify-center mb-3`}>
@@ -161,7 +163,7 @@ export function Dashboard() {
         <div className="lg:col-span-2 bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-gray-800">This Week's Performance</h2>
-            <Link to="/analytics" className="text-blue-600 text-xs flex items-center gap-1 hover:underline">
+            <Link href="/analytics" className="text-blue-600 text-xs flex items-center gap-1 hover:underline">
               Full Analytics <ArrowRight size={12} />
             </Link>
           </div>
@@ -185,7 +187,7 @@ export function Dashboard() {
             {quickLinks.map(link => (
               <Link
                 key={link.path}
-                to={link.path}
+                href={link.path}
                 className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
               >
                 <div className={`w-8 h-8 ${link.color} rounded-lg flex items-center justify-center flex-shrink-0`}>
@@ -208,7 +210,7 @@ export function Dashboard() {
           <h2 className="font-semibold text-gray-800 flex items-center gap-2">
             <Clock size={16} className="text-blue-600" /> Recent Tests
           </h2>
-          <Link to="/mock-tests" className="text-blue-600 text-sm flex items-center gap-1 hover:underline">
+          <Link href="/mock-tests" className="text-blue-600 text-sm flex items-center gap-1 hover:underline">
             All Tests <ArrowRight size={14} />
           </Link>
         </div>
@@ -231,7 +233,7 @@ export function Dashboard() {
                       {attempt.percentage.toFixed(0)}%
                     </span>
                     <Link
-                      to="/mock-tests"
+                      href="/mock-tests"
                       className="text-blue-600 text-xs font-medium border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition"
                     >
                       Retake

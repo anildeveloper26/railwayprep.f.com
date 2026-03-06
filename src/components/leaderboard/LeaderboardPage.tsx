@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Trophy, Medal, Crown, TrendingUp, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";

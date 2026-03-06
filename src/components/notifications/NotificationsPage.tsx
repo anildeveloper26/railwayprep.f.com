@@ -1,3 +1,5 @@
+"use client";
+
 import { Bell, ExternalLink, Calendar, Users, Clock, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";

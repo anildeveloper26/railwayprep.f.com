@@ -1,12 +1,15 @@
+"use client";
+
 import { useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Train, Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { setAccessToken, setStoredUser, type StoredUser } from "@/lib/store/auth";
 
 export function LoginPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -26,7 +29,7 @@ export function LoginPage() {
       setAccessToken(res.data.accessToken);
       setStoredUser(res.data.user);
       toast.success("Welcome back!");
-      navigate({ to: "/dashboard" });
+      router.push("/dashboard");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Login failed";
       setError(msg);
@@ -103,14 +106,14 @@ export function LoginPage() {
 
           <div className="mt-6 text-center text-sm text-gray-500">
             Don't have an account?{" "}
-            <Link to="/register" className="text-blue-600 font-semibold hover:underline">
+            <Link href="/register" className="text-blue-600 font-semibold hover:underline">
               Register free
             </Link>
           </div>
         </div>
 
         <div className="text-center mt-4 text-blue-200 text-xs">
-          <Link to="/" className="hover:text-white">← Back to home</Link>
+          <Link href="/" className="hover:text-white">← Back to home</Link>
         </div>
       </div>
     </div>

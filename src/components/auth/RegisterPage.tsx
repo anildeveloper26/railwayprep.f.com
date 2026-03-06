@@ -1,5 +1,8 @@
+"use client";
+
 import { useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Train, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
@@ -9,7 +12,7 @@ const EXAMS = ["RRB NTPC", "RRB Group D", "RRB JE", "RRB ALP", "RPF"];
 const CATEGORIES = ["General", "OBC", "SC", "ST", "EWS"];
 
 export function RegisterPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
@@ -34,7 +37,7 @@ export function RegisterPage() {
       setAccessToken(res.data.accessToken);
       setStoredUser(res.data.user);
       toast.success("Account created! Welcome to RailwayPrep.");
-      navigate({ to: "/dashboard" });
+      router.push("/dashboard");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Registration failed";
       setError(msg);
@@ -129,11 +132,11 @@ export function RegisterPage() {
 
           <div className="mt-5 text-center text-sm text-gray-500">
             Already have an account?{" "}
-            <Link to="/login" className="text-blue-600 font-semibold hover:underline">Sign in</Link>
+            <Link href="/login" className="text-blue-600 font-semibold hover:underline">Sign in</Link>
           </div>
         </div>
         <div className="text-center mt-4 text-blue-200 text-xs">
-          <Link to="/" className="hover:text-white">← Back to home</Link>
+          <Link href="/" className="hover:text-white">← Back to home</Link>
         </div>
       </div>
     </div>

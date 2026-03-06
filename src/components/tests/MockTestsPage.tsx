@@ -1,5 +1,7 @@
+"use client";
+
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 import { Clock, FileText, Users, Play, Filter, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -163,8 +165,7 @@ function TestCard({ test }: { test: ApiTest }) {
         </div>
 
         <Link
-          to="/take-test/$testId"
-          params={{ testId: test._id }}
+          href={`/take-test/${test._id}`}
           className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
         >
           <Play size={14} /> Start Test

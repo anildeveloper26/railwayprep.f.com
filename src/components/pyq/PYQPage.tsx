@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { BookOpen, ChevronDown, ChevronUp, Search, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";

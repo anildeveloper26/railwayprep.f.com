@@ -1,3 +1,5 @@
+"use client";
+
 import { BarChart2, TrendingUp, Target, Clock, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";

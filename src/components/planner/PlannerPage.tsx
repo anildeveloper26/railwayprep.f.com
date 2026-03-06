@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Calendar, CheckCircle2, Circle, Zap, Target, Clock } from "lucide-react";
 import { CURRENT_USER } from "@/lib/constants/mockData";

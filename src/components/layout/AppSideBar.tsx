@@ -1,5 +1,8 @@
-import { useState } from "react";
-import { Link, Outlet, useLocation } from "@tanstack/react-router";
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, FileText, BookOpen, Bell, Calendar,
   ShieldCheck, BarChart2, Trophy, CreditCard, Settings,
@@ -25,13 +28,13 @@ const adminItems = [
   { icon: Settings, label: "Admin Panel", path: "/admin" },
 ];
 
-export function AppSideBar() {
+export function AppSideBar({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const location = useLocation();
+  const pathname = usePathname();
   const user = getStoredUser();
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => pathname === path;
 
   const handleLogout = async () => {
     try { await api.post("/auth/logout"); } catch { /* ignore */ }
@@ -87,7 +90,7 @@ export function AppSideBar() {
         {navItems.map((item) => (
           <Link
             key={item.path}
-            to={item.path}
+            href={item.path}
             onClick={() => setMobileOpen(false)}
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group",
@@ -121,7 +124,7 @@ export function AppSideBar() {
             {adminItems.map((item) => (
               <Link
                 key={item.path}
-                to={item.path}
+                href={item.path}
                 onClick={() => setMobileOpen(false)}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group",
@@ -201,7 +204,7 @@ export function AppSideBar() {
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto bg-gray-50">
-          <Outlet />
+          {children}
         </main>
       </div>
     </div>

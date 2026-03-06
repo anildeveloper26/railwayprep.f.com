@@ -1,3 +1,5 @@
+"use client";
+
 import { ShieldCheck, ChevronDown, ChevronUp, AlertCircle, CheckCircle2, Info } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";

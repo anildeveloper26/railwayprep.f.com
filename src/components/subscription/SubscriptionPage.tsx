@@ -1,3 +1,5 @@
+"use client";
+
 import { CheckCircle2, Zap, CreditCard, Shield } from "lucide-react";
 import { SUBSCRIPTION_PLANS, CURRENT_USER } from "@/lib/constants/mockData";
 import { cn } from "@/lib/utils";
