@@ -152,6 +152,8 @@ export interface ApiUser {
   testsAttempted?: number;
   averageScore?: number;
   rank?: number;
+  role?: string;
+  isAdmin?: boolean;
 }
 
 export interface ApiTestSection {

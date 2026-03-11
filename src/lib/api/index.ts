@@ -106,7 +106,9 @@ export const subscriptionsApi = {
 // ─── Planner ──────────────────────────────────────────────────────────────────
 
 export const plannerApi = {
-  getTasks: () => api.get<ApiPlannerTask[]>("/planner"),
+  getTasks: () => api.get<{ tasks: ApiPlannerTask[] } | ApiPlannerTask[]>("/planner").then(
+    res => Array.isArray(res) ? res : (res as { tasks: ApiPlannerTask[] }).tasks ?? []
+  ),
 
   getStats: () => api.get<ApiPlannerStats>("/planner/stats"),
 

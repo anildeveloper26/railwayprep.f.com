@@ -27,7 +27,7 @@ export function AnalyticsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={32} className="animate-spin text-blue-600" />
+        <Loader2 size={32} className="animate-spin text-orange-500" />
       </div>
     );
   }
@@ -37,7 +37,7 @@ export function AnalyticsPage() {
       {/* Header */}
       <div>
         <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <BarChart2 size={20} className="text-blue-600" /> Performance Analytics
+          <BarChart2 size={20} className="text-orange-500" /> Performance Analytics
         </h1>
         <p className="text-gray-500 text-sm mt-0.5">Detailed breakdown of your preparation progress</p>
       </div>
@@ -45,7 +45,7 @@ export function AnalyticsPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: Target,     label: "Overall Accuracy",  value: `${accuracy}%`,                          color: "text-blue-600",   bg: "bg-blue-50" },
+          { icon: Target,     label: "Overall Accuracy",  value: `${accuracy}%`,                          color: "text-orange-500", bg: "bg-orange-50" },
           { icon: TrendingUp, label: "Avg Score",         value: `${user?.averageScore ?? 0}%`,            color: "text-green-600",  bg: "bg-green-50" },
           { icon: Clock,      label: "Avg Time / Q",      value: averageTime ? `${averageTime}s` : "—",    color: "text-orange-600", bg: "bg-orange-50" },
           { icon: BarChart2,  label: "Tests Attempted",   value: user?.testsAttempted ?? analytics?.totalTests ?? 0, color: "text-purple-600", bg: "bg-purple-50" },
@@ -75,7 +75,7 @@ export function AnalyticsPage() {
                     contentStyle={{ border: "none", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)", borderRadius: "8px", fontSize: "12px" }}
                     formatter={(v) => [`${v ?? 0}%`, "Score"]}
                   />
-                  <Bar dataKey="percentage" fill="#1a56db" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="percentage" fill="#f97316" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -93,7 +93,7 @@ export function AnalyticsPage() {
                     contentStyle={{ border: "none", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)", borderRadius: "8px", fontSize: "12px" }}
                     formatter={(v, _, props) => [`${v ?? 0}%`, (props.payload as { name?: string }).name ?? ""]}
                   />
-                  <Line type="monotone" dataKey="score" stroke="#1a56db" strokeWidth={2.5} dot={{ r: 4, fill: "#1a56db" }} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="score" stroke="#f97316" strokeWidth={2.5} dot={{ r: 4, fill: "#f97316" }} activeDot={{ r: 6 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -112,7 +112,7 @@ export function AnalyticsPage() {
               <Tooltip
                 contentStyle={{ border: "none", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)", borderRadius: "8px", fontSize: "12px" }}
               />
-              <Bar dataKey="questions" name="Questions" fill="#1a56db" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="questions" name="Questions" fill="#f97316" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -183,7 +183,7 @@ export function AnalyticsPage() {
                     <span className="text-sm text-gray-700">{t.topic}</span>
                     <span className={cn(
                       "text-xs font-bold",
-                      pct >= 80 ? "text-green-600" : pct >= 60 ? "text-blue-600" : pct >= 40 ? "text-yellow-600" : "text-red-600"
+                      pct >= 80 ? "text-green-600" : pct >= 60 ? "text-orange-500" : pct >= 40 ? "text-yellow-600" : "text-red-600"
                     )}>
                       {pct}% ({t.correct}/{t.total})
                     </span>
@@ -192,7 +192,7 @@ export function AnalyticsPage() {
                     <div
                       className={cn(
                         "h-full rounded-full transition-all",
-                        pct >= 80 ? "bg-green-500" : pct >= 60 ? "bg-blue-500" : pct >= 40 ? "bg-yellow-500" : "bg-red-500"
+                        pct >= 80 ? "bg-green-500" : pct >= 60 ? "bg-orange-500" : pct >= 40 ? "bg-yellow-500" : "bg-red-500"
                       )}
                       style={{ width: `${pct}%` }}
                     />

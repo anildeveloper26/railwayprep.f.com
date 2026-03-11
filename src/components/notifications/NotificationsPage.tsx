@@ -5,7 +5,7 @@ import type { ApiNotification } from "@/lib/interfaces";
 import { cn, formatDate } from "@/lib/utils";
 
 const TYPE_STYLES: Record<string, { icon: React.ElementType; color: string; bg: string; border: string; dot: string }> = {
-  info:    { icon: Info,          color: "text-blue-700",   bg: "bg-blue-50",   border: "border-blue-200",   dot: "bg-blue-500" },
+  info:    { icon: Info,          color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-200", dot: "bg-orange-500" },
   warning: { icon: AlertTriangle, color: "text-yellow-700", bg: "bg-yellow-50", border: "border-yellow-200", dot: "bg-yellow-500" },
   success: { icon: CheckCircle2,  color: "text-green-700",  bg: "bg-green-50",  border: "border-green-200",  dot: "bg-green-500" },
   error:   { icon: XCircle,       color: "text-red-700",    bg: "bg-red-50",    border: "border-red-200",    dot: "bg-red-500" },
@@ -25,7 +25,7 @@ export function NotificationsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={32} className="animate-spin text-blue-600" />
+        <Loader2 size={32} className="animate-spin text-orange-500" />
       </div>
     );
   }
@@ -46,13 +46,13 @@ export function NotificationsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <Bell size={20} className="text-blue-600" /> Notifications
+            <Bell size={20} className="text-orange-500" /> Notifications
           </h1>
           <p className="text-gray-500 text-sm mt-0.5">Stay updated with the latest announcements</p>
         </div>
         {notifications.length > 0 && (
-          <span className="flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-medium text-sm">
-            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+          <span className="flex items-center gap-1.5 bg-orange-50 text-orange-700 border border-orange-200 px-3 py-1.5 rounded-lg font-medium text-sm">
+            <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
             {notifications.length} notification{notifications.length !== 1 ? "s" : ""}
           </span>
         )}
@@ -61,8 +61,8 @@ export function NotificationsPage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: "Total",    value: notifications.length, color: "text-blue-600",   bg: "bg-blue-50" },
-          { label: "Info",     value: infoCount,            color: "text-blue-600",   bg: "bg-blue-50" },
+          { label: "Total",    value: notifications.length, color: "text-orange-500", bg: "bg-orange-50" },
+          { label: "Info",     value: infoCount,            color: "text-orange-500", bg: "bg-orange-50" },
           { label: "Warnings", value: warningCount,         color: "text-yellow-600", bg: "bg-yellow-50" },
           { label: "Success",  value: successCount,         color: "text-green-600",  bg: "bg-green-50" },
         ].map(c => (

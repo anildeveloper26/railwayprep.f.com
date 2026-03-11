@@ -29,9 +29,12 @@ export function PlannerPage() {
   const [targetExam, setTargetExam] = useState(user?.targetExam ?? "RRB NTPC");
   const [examDate, setExamDate] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newTask, setNewTask] = useState({
+  const [newTask, setNewTask] = useState<{
+    title: string; subject: string; topic: string;
+    priority: typeof PRIORITIES[number]; targetDate: string; estimatedMinutes: number; notes: string;
+  }>({
     title: "", subject: "Mathematics", topic: "",
-    priority: "High" as const, targetDate: "", estimatedMinutes: 60, notes: "",
+    priority: "High", targetDate: "", estimatedMinutes: 60, notes: "",
   });
 
   const taskList: ApiPlannerTask[] = Array.isArray(tasks) ? tasks : [];
@@ -69,7 +72,7 @@ export function PlannerPage() {
       queryClient.invalidateQueries({ queryKey: ["planner-tasks"] });
       queryClient.invalidateQueries({ queryKey: ["planner-stats"] });
       setShowAddForm(false);
-      setNewTask({ title: "", subject: "Mathematics", topic: "", priority: "High", targetDate: "", estimatedMinutes: 60, notes: "" });
+      setNewTask({ title: "", subject: "Mathematics", topic: "", priority: "High" as const, targetDate: "", estimatedMinutes: 60, notes: "" });
       toast.success("Task created!");
     },
     onError: (err: Error) => toast.error(err.message),
@@ -87,20 +90,20 @@ export function PlannerPage() {
       {/* Header */}
       <div>
         <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <Calendar size={20} className="text-blue-600" /> Study Planner
+          <Calendar size={20} className="text-orange-500" /> Study Planner
         </h1>
         <p className="text-gray-500 text-sm mt-0.5">Manage your study tasks and track your preparation</p>
       </div>
 
       {/* Plan Controls */}
-      <div className="bg-gradient-to-r from-[#1e3a8a] to-[#1a56db] rounded-2xl p-5 text-white">
+      <div className="rounded-2xl p-5 text-white" style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)" }}>
         <div className="flex items-center gap-2 mb-4">
           <Zap size={18} className="text-yellow-300" />
           <h2 className="font-semibold">Study Plan</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="text-blue-200 text-xs mb-1.5 block font-medium">Target Exam</label>
+            <label className="text-slate-400 text-xs mb-1.5 block font-medium">Target Exam</label>
             <select
               value={targetExam}
               onChange={e => setTargetExam(e.target.value)}
@@ -121,7 +124,7 @@ export function PlannerPage() {
         <div className="mt-3 pt-3 border-t border-white/10">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles size={14} className="text-yellow-300" />
-            <span className="text-blue-100 text-xs font-medium">Generate AI Study Plan</span>
+            <span className="text-slate-300 text-xs font-medium">Generate AI Study Plan</span>
           </div>
           <div className="flex gap-2">
             <input
@@ -145,7 +148,7 @@ export function PlannerPage() {
 
       {/* Add Task Form */}
       {showAddForm && (
-        <div className="bg-white rounded-xl border border-blue-200 shadow-sm p-5">
+        <div className="bg-white rounded-xl border border-orange-200 shadow-sm p-5">
           <h3 className="font-semibold text-gray-800 mb-4">New Task</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="sm:col-span-2">
@@ -154,7 +157,7 @@ export function PlannerPage() {
                 value={newTask.title}
                 onChange={e => setNewTask(p => ({ ...p, title: e.target.value }))}
                 placeholder="e.g. Revise Percentage"
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
             </div>
             <div>
@@ -162,7 +165,7 @@ export function PlannerPage() {
               <select
                 value={newTask.subject}
                 onChange={e => setNewTask(p => ({ ...p, subject: e.target.value }))}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
               >
                 {SUBJECTS.map(s => <option key={s}>{s}</option>)}
               </select>
@@ -173,7 +176,7 @@ export function PlannerPage() {
                 value={newTask.topic}
                 onChange={e => setNewTask(p => ({ ...p, topic: e.target.value }))}
                 placeholder="e.g. Number System"
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
             </div>
             <div>
@@ -181,7 +184,7 @@ export function PlannerPage() {
               <select
                 value={newTask.priority}
                 onChange={e => setNewTask(p => ({ ...p, priority: e.target.value as typeof PRIORITIES[number] }))}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
               >
                 {PRIORITIES.map(p => <option key={p}>{p}</option>)}
               </select>
@@ -192,7 +195,7 @@ export function PlannerPage() {
                 type="date"
                 value={newTask.targetDate}
                 onChange={e => setNewTask(p => ({ ...p, targetDate: e.target.value }))}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
             </div>
             <div>
@@ -201,7 +204,7 @@ export function PlannerPage() {
                 type="number" min={5} max={240}
                 value={newTask.estimatedMinutes}
                 onChange={e => setNewTask(p => ({ ...p, estimatedMinutes: parseInt(e.target.value) || 60 }))}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
             </div>
           </div>
@@ -215,7 +218,7 @@ export function PlannerPage() {
             <button
               onClick={() => createMutation.mutate(newTask)}
               disabled={createMutation.isPending || !newTask.title || !newTask.topic}
-              className="flex-1 bg-blue-600 text-white py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-60 transition flex items-center justify-center gap-2"
+              className="flex-1 bg-orange-500 text-white py-2 rounded-xl text-sm font-semibold hover:bg-orange-600 disabled:opacity-60 transition flex items-center justify-center gap-2"
             >
               {createMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : null}
               Create Task
@@ -227,7 +230,7 @@ export function PlannerPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: Target,      label: "Progress",       value: `${progress}%`,                                          color: "text-blue-600" },
+          { icon: Target,      label: "Progress",       value: `${progress}%`,                                          color: "text-orange-500" },
           { icon: Clock,       label: "Days Remaining",  value: daysRemaining ?? "—",                                    color: "text-orange-600" },
           { icon: CheckCircle2,label: "Completed",       value: `${stats?.completedTasks ?? todayCompleted}/${stats?.totalTasks ?? totalTasks}`, color: "text-green-600" },
           { icon: Zap,         label: "Pending",         value: stats?.pendingTasks ?? (totalTasks - todayCompleted),    color: "text-purple-600" },
@@ -245,11 +248,11 @@ export function PlannerPage() {
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-gray-700">Overall Progress</span>
-            <span className="text-blue-600 font-bold text-sm">{progress}%</span>
+            <span className="text-orange-500 font-bold text-sm">{progress}%</span>
           </div>
           <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transition-all duration-500"
+              className="h-full bg-gradient-to-r from-orange-500 to-orange-400 rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -264,7 +267,7 @@ export function PlannerPage() {
           </h2>
           <span className={cn(
             "text-xs font-semibold px-2.5 py-1 rounded-full",
-            todayCompleted === totalTasks && totalTasks > 0 ? "bg-green-100 text-green-700" : "bg-blue-50 text-blue-700"
+            todayCompleted === totalTasks && totalTasks > 0 ? "bg-green-100 text-green-700" : "bg-orange-50 text-orange-700"
           )}>
             {todayCompleted}/{totalTasks} done
           </span>
@@ -272,7 +275,7 @@ export function PlannerPage() {
 
         {tasksLoading ? (
           <div className="flex items-center justify-center py-10">
-            <Loader2 size={24} className="animate-spin text-blue-600" />
+            <Loader2 size={24} className="animate-spin text-orange-500" />
           </div>
         ) : taskList.length === 0 ? (
           <div className="text-center py-12 text-gray-400">

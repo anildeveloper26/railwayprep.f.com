@@ -23,6 +23,7 @@ import {
   Gift,
   Users,
   Radio,
+  PenLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -34,6 +35,7 @@ import Cookies from "js-cookie";
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard",        path: "/dashboard" },
   { icon: FileText,        label: "Mock Tests",       path: "/mock-tests" },
+  { icon: PenLine,         label: "Real-Time Exam",   path: "/exam" },
   { icon: Zap,             label: "Daily Challenge",  path: "/daily-challenge" },
   { icon: BookOpen,        label: "PYQ Bank",         path: "/pyq" },
   { icon: Layers,          label: "Flashcards",       path: "/flashcards" },
@@ -65,6 +67,7 @@ export function AppSideBar() {
     retry: false,
   });
   const user = apiUser ? adaptUser(apiUser) : null;
+  const isAdmin = apiUser?.role === "admin" || apiUser?.isAdmin === true;
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -77,32 +80,30 @@ export function AppSideBar() {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className={cn(
-        "flex items-center gap-3 p-4 border-b border-white/10",
+        "flex items-center gap-3 p-4 border-b border-white/8",
         collapsed ? "justify-center px-2" : ""
       )}>
-        <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
-          <Train className="w-5 h-5 text-white" />
+        <div className="w-9 h-9 bg-brand-500/20 border border-brand-500/30 rounded-xl flex items-center justify-center shrink-0">
+          <Train className="w-5 h-5 text-brand-400" />
         </div>
         {!collapsed && (
           <div>
             <div className="text-white font-bold text-base leading-none">RailwayPrep</div>
-            <div className="text-blue-200 text-xs mt-0.5">Crack RRB Exams</div>
+            <div className="text-slate-400 text-xs mt-0.5">Crack RRB Exams</div>
           </div>
         )}
       </div>
 
       {/* User Badge */}
       {!collapsed && (
-        <div className="mx-3 mt-3 p-3 bg-white/10 rounded-xl">
+        <div className="mx-3 mt-3 p-3 bg-white/6 border border-white/8 rounded-xl">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-              <UserCircle className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 rounded-full bg-orange-500/20 border border-orange-400/30 flex items-center justify-center">
+              <UserCircle className="w-5 h-5 text-brand-300" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-white text-xs font-semibold truncate">{user?.name ?? "..."}</div>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-blue-200 text-[10px] truncate">{user?.targetExam ?? ""}</span>
-              </div>
+              <div className="text-slate-400 text-[10px] truncate mt-0.5">{user?.targetExam ?? ""}</div>
             </div>
           </div>
         </div>
@@ -111,7 +112,7 @@ export function AppSideBar() {
       {/* Nav Items */}
       <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto hide-scrollbar">
         {!collapsed && (
-          <div className="text-blue-300 text-[10px] font-semibold uppercase tracking-wider px-2 mb-2">
+          <div className="text-slate-500 text-[10px] font-bold uppercase tracking-widest px-2 mb-2">
             Preparation
           </div>
         )}
@@ -123,31 +124,31 @@ export function AppSideBar() {
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group",
               isActive(item.path)
-                ? "bg-white/20 text-white font-semibold shadow-sm"
-                : "text-blue-100 hover:bg-white/10 hover:text-white",
+                ? "bg-brand-500/20 text-white font-semibold border border-brand-500/30"
+                : "text-slate-300 hover:bg-white/8 hover:text-white",
               collapsed ? "justify-center px-2" : ""
             )}
             title={collapsed ? item.label : undefined}
           >
             <item.icon className={cn(
-              "w-4.5 h-4.5 flex-shrink-0",
-              isActive(item.path) ? "text-white" : "text-blue-200 group-hover:text-white"
+              "w-4.5 h-4.5 shrink-0",
+              isActive(item.path) ? "text-brand-400" : "text-slate-400 group-hover:text-slate-200"
             )} size={18} />
             {!collapsed && (
               <>
                 <span className="flex-1">{item.label}</span>
-                {isActive(item.path) && <ChevronRight className="w-3.5 h-3.5 text-white/60" />}
+                {isActive(item.path) && <ChevronRight className="w-3.5 h-3.5 text-brand-400/60" />}
               </>
             )}
           </Link>
         ))}
 
-        {!collapsed && (
-          <div className="text-blue-300 text-[10px] font-semibold uppercase tracking-wider px-2 mt-4 mb-2">
+        {isAdmin && !collapsed && (
+          <div className="text-slate-500 text-[10px] font-bold uppercase tracking-widest px-2 mt-4 mb-2">
             Management
           </div>
         )}
-        {adminItems.map((item) => (
+        {isAdmin && adminItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
@@ -155,13 +156,13 @@ export function AppSideBar() {
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group",
               isActive(item.path)
-                ? "bg-white/20 text-white font-semibold"
-                : "text-blue-100 hover:bg-white/10 hover:text-white",
+                ? "bg-brand-500/20 text-white font-semibold border border-brand-500/30"
+                : "text-slate-300 hover:bg-white/8 hover:text-white",
               collapsed ? "justify-center px-2" : ""
             )}
             title={collapsed ? item.label : undefined}
           >
-            <item.icon className="w-4.5 h-4.5 flex-shrink-0 text-blue-200 group-hover:text-white" size={18} />
+            <item.icon className="w-4.5 h-4.5 shrink-0 text-slate-400 group-hover:text-slate-200" size={18} />
             {!collapsed && <span className="flex-1">{item.label}</span>}
           </Link>
         ))}
@@ -169,15 +170,15 @@ export function AppSideBar() {
 
       {/* Free Trial Banner */}
       {!collapsed && user?.subscriptionPlan === "free" && (
-        <div className="mx-3 mb-2 bg-yellow-400/20 border border-yellow-400/30 rounded-xl p-3">
-          <div className="text-yellow-200 text-xs font-bold mb-0.5">Free Plan</div>
-          <div className="text-yellow-100/80 text-[10px] leading-tight mb-2">
+        <div className="mx-3 mb-2 bg-brand-500/15 border border-brand-500/25 rounded-xl p-3">
+          <div className="text-brand-300 text-xs font-bold mb-0.5">Free Plan</div>
+          <div className="text-slate-400 text-[10px] leading-tight mb-2">
             Upgrade to unlock unlimited tests, flashcards & analytics
           </div>
           <Link
             to="/subscription"
             onClick={() => setMobileOpen(false)}
-            className="block w-full text-center bg-yellow-400 hover:bg-yellow-300 text-yellow-900 text-[11px] font-bold py-1.5 rounded-lg transition-colors"
+            className="block w-full text-center bg-brand-500 hover:bg-brand-400 text-white text-[11px] font-bold py-1.5 rounded-lg transition-colors"
           >
             Upgrade Now →
           </Link>
@@ -185,11 +186,11 @@ export function AppSideBar() {
       )}
 
       {/* Bottom */}
-      <div className="px-2 pb-3 border-t border-white/10 pt-3 space-y-0.5">
+      <div className="px-2 pb-3 border-t border-white/8 pt-3 space-y-0.5">
         <button
           onClick={toggleLang}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-200 hover:bg-white/10 hover:text-white transition-all duration-150",
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-400 hover:bg-white/8 hover:text-slate-200 transition-all duration-150",
             collapsed ? "justify-center" : ""
           )}
           title="Toggle Hindi / English"
@@ -200,11 +201,11 @@ export function AppSideBar() {
         <button
           onClick={handleLogout}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-all duration-150",
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-400 hover:bg-red-500/15 hover:text-red-300 transition-all duration-150",
             collapsed ? "justify-center" : ""
           )}
         >
-          <LogOut size={18} className="flex-shrink-0" />
+          <LogOut size={18} className="shrink-0" />
           {!collapsed && <span>Logout</span>}
         </button>
       </div>
@@ -212,13 +213,12 @@ export function AppSideBar() {
   );
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-slate-50">
       {/* Desktop Sidebar */}
       <aside className={cn(
-        "hidden md:flex flex-col bg-gradient-to-b from-[#1e3a8a] to-[#1a56db] transition-all duration-300 shadow-xl",
+        "hidden md:flex md:justify-end flex-col transition-all duration-300 shadow-xl",
         collapsed ? "w-16" : "w-60"
-      )}>
-        {/* Collapse Toggle */}
+      )} style={{ background: "linear-gradient(180deg, var(--sidebar-dark) 0%, var(--sidebar-medium) 100%)" }}>
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="absolute top-4 -right-3 z-50 w-6 h-6 bg-white border border-gray-200 rounded-full shadow flex items-center justify-center hover:bg-gray-50"
@@ -231,17 +231,17 @@ export function AppSideBar() {
 
       {/* Mobile Overlay */}
       {mobileOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setMobileOpen(false)} />
       )}
 
       {/* Mobile Sidebar */}
-      <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-[#1e3a8a] to-[#1a56db] shadow-2xl transition-transform duration-300 md:hidden",
-        mobileOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 w-64 shadow-2xl transition-transform duration-300 md:hidden",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+        style={{ background: "linear-gradient(180deg, var(--sidebar-dark) 0%, var(--sidebar-medium) 100%)" }}
+      >
         <SidebarContent />
       </aside>
 
@@ -249,20 +249,17 @@ export function AppSideBar() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Mobile Top Bar */}
         <header className="md:hidden flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200 shadow-sm">
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="p-1.5 rounded-lg hover:bg-gray-100"
-          >
+          <button onClick={() => setMobileOpen(true)} className="p-1.5 rounded-lg hover:bg-gray-100">
             <Menu size={20} />
           </button>
           <div className="flex items-center gap-2">
-            <Train size={20} className="text-blue-600" />
+            <Train size={20} className="text-brand-500" />
             <span className="font-bold text-gray-800">RailwayPrep</span>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-y-auto bg-slate-50">
           <Outlet />
         </main>
       </div>

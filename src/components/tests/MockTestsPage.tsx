@@ -35,7 +35,7 @@ export function MockTestsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={32} className="animate-spin text-blue-600" />
+        <Loader2 size={32} className="animate-spin text-orange-500" />
       </div>
     );
   }
@@ -56,7 +56,7 @@ export function MockTestsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <FileText size={20} className="text-blue-600" /> Mock Tests
+            <FileText size={20} className="text-orange-500" /> Mock Tests
           </h1>
           <p className="text-gray-500 text-sm mt-0.5">{tests.length} tests · {attempted} attempted</p>
         </div>
@@ -64,7 +64,7 @@ export function MockTestsPage() {
           <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-1.5 rounded-lg font-medium">
             {attempted} Completed
           </div>
-          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg font-medium">
+          <div className="bg-orange-50 border border-orange-200 text-orange-700 px-3 py-1.5 rounded-lg font-medium">
             {tests.length - attempted} Pending
           </div>
         </div>
@@ -87,8 +87,8 @@ export function MockTestsPage() {
                   className={cn(
                     "text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors",
                     examFilter === e
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-gray-600 border-gray-200 hover:border-blue-300"
+                      ? "bg-orange-500 text-white border-orange-500"
+                      : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"
                   )}
                 >
                   {e}
@@ -106,8 +106,8 @@ export function MockTestsPage() {
                   className={cn(
                     "text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors",
                     diffFilter === d
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-gray-600 border-gray-200 hover:border-blue-300"
+                      ? "bg-orange-500 text-white border-orange-500"
+                      : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"
                   )}
                 >
                   {d}
@@ -136,7 +136,7 @@ export function MockTestsPage() {
 function TestCard({ test }: { test: MockTest }) {
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-      <div className="h-1.5 bg-gradient-to-r from-[#1a56db] to-[#3b82f6]" />
+      <div className="h-1.5" style={{ background: "linear-gradient(to right, #f97316, #fb923c)" }} />
 
       <div className="flex flex-col h-full justify-between p-4">
         <div>
@@ -146,7 +146,7 @@ function TestCard({ test }: { test: MockTest }) {
           </div>
 
           <div className="flex flex-wrap gap-1.5 mb-4">
-            <span className="bg-blue-50 text-blue-700 text-[11px] px-2 py-0.5 rounded-full font-medium">{test.exam}</span>
+            <span className="bg-orange-50 text-orange-700 text-[11px] px-2 py-0.5 rounded-full font-medium">{test.exam}</span>
             <span className={cn("text-[11px] px-2 py-0.5 rounded-full font-medium", getDifficultyColor(test.difficulty))}>
               {test.difficulty}
             </span>
@@ -191,7 +191,7 @@ function TestCard({ test }: { test: MockTest }) {
         <Link
           to="/take-test/$testId"
           params={{ testId: test.id }}
-          className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
+          className="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
         >
           <Play size={14} />
           {test.isAttempted ? "Retake Test" : "Start Test"}

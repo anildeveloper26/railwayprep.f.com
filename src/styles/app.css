@@ -2,34 +2,155 @@
 @custom-variant dark (&:is(.dark *));
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
-  }
+/* ═══════════════════════════════════════════════════════════════
+   RAILWAY APP THEME
+   To retheme the entire app, only edit the values in :root below.
+   Example themes are commented at the bottom of this block.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Page background ── */
+  --app-bg: #f8fafc;
+
+  /* ── Sidebar dark surface ── */
+  --sidebar-dark: #0f172a;
+  --sidebar-medium: #1e293b;
+  --sidebar-light: #334155;
+
+  /* ── Brand / Primary (buttons, active states, links) ── */
+  --brand-50:  #fff7ed;
+  --brand-100: #ffedd5;
+  --brand-200: #fed7aa;
+  --brand-300: #fdba74;
+  --brand-400: #fb923c;
+  --brand-500: #f97316;   /* ← main brand color */
+  --brand-600: #ea580c;   /* ← hover / darker */
+  --brand-700: #c2410c;
+  --brand-900: #431407;
+
+  /* ── Neutral greys ── */
+  --color-black-900: #111827;
+  --color-black-800: #1f2937;
+  --color-black-700: #374151;
+  --color-black-600: #4b5563;
+  --color-black-500: #6b7280;
+  --color-black-400: #9ca3af;
+  --color-black-300: #d1d5db;
+  --color-black-200: #e5e7eb;
+  --color-black-100: #f3f4f6;
+  --color-black-50:  #f9fafb;
+
+  /* ── Semantic / shadcn ── */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+  --radius: 0.5rem;
 }
+
+/* ── Example: swap to Indian Railways Maroon theme ──
+:root {
+  --brand-50:  #fff1f2;
+  --brand-100: #ffe4e6;
+  --brand-200: #fecdd3;
+  --brand-300: #fda4af;
+  --brand-400: #fb7185;
+  --brand-500: #991b1b;
+  --brand-600: #7f1d1d;
+  --brand-700: #450a0a;
+  --sidebar-dark: #1c0a04;
+  --sidebar-medium: #431407;
+  --sidebar-light: #7f1d1d;
+}
+*/
+
+/* ── Example: Forest / Green theme ──
+:root {
+  --brand-50:  #f1fcf5;
+  --brand-100: #dff9ea;
+  --brand-200: #c0f2d4;
+  --brand-300: #8ee7b3;
+  --brand-400: #56d28a;
+  --brand-500: #2fb869;
+  --brand-600: #219653;
+  --brand-700: #166534;
+  --sidebar-dark: #052e16;
+  --sidebar-medium: #14532d;
+  --sidebar-light: #166534;
+}
+*/
+
+/* ═══════════════════════════════════════════════════════════════
+   Register CSS variables as Tailwind v4 utility classes.
+   This makes bg-brand-500, text-brand-600, etc. available.
+   ═══════════════════════════════════════════════════════════════ */
+
+@theme inline {
+  /* Brand utilities */
+  --color-brand-50:  var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-900: var(--brand-900);
+
+  /* Sidebar surface utilities */
+  --color-sidebar-dark:   var(--sidebar-dark);
+  --color-sidebar-medium: var(--sidebar-medium);
+  --color-sidebar-light:  var(--sidebar-light);
+
+  /* App background */
+  --color-app-bg: var(--app-bg);
+
+  /* Neutral utilities */
+  --color-neutral-900: var(--color-black-900);
+  --color-neutral-800: var(--color-black-800);
+  --color-neutral-700: var(--color-black-700);
+  --color-neutral-600: var(--color-black-600);
+  --color-neutral-500: var(--color-black-500);
+  --color-neutral-400: var(--color-black-400);
+  --color-neutral-300: var(--color-black-300);
+  --color-neutral-200: var(--color-black-200);
+  --color-neutral-100: var(--color-black-100);
+  --color-neutral-50:  var(--color-black-50);
+
+  /* Sidebar (shadcn) */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Base styles
+   ═══════════════════════════════════════════════════════════════ */
+
 body {
   border: var(--border);
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--app-bg);
+  color: var(--color-black-900);
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
@@ -37,117 +158,53 @@ body {
   padding: 0;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-::-webkit-scrollbar-track {
-  background: #f3f4f6;
-  border-radius: 6px;
-}
-::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 6px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--color-black-100); border-radius: 6px; }
+::-webkit-scrollbar-thumb { background: var(--color-black-300); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-black-400); }
 
-.hide-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
+.hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
 
-/* Animations */
+/* ─── Animations ────────────────────────────────────────────── */
 @keyframes slideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
 }
-.animate-slide-up {
-  animation: slideUp 0.35s ease-out forwards;
-}
+.animate-slide-up { animation: slideUp 0.35s ease-out forwards; }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
-.animate-fadeIn {
-  animation: fadeIn 0.4s ease-out forwards;
-}
+.animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
 
-/* Timer urgent pulse */
 @keyframes timerPulse {
-  0%,
-  100% {
-    color: #e02424;
-  }
-  50% {
-    color: #ff5a1f;
-  }
+  0%, 100% { color: #e02424; }
+  50%       { color: var(--brand-500); }
 }
-.timer-urgent {
-  animation: timerPulse 1s ease-in-out infinite;
-}
+.timer-urgent { animation: timerPulse 1s ease-in-out infinite; }
 
-/* Option card hover */
-.option-card {
-  transition: all 0.15s ease;
-}
-.option-card:hover {
-  transform: translateX(4px);
-}
-
-/* Sidebar active highlight */
-.sidebar-active {
-  background-color: rgba(255, 255, 255, 0.15);
-  border-left: 3px solid #fff;
-}
-
-/* Focus ring reset for buttons */
-button {
-  outline: none !important;
-}
+/* ─── Focus ring (uses brand color) ────────────────────────── */
+button { outline: none !important; }
 button:focus-visible {
-  outline: 2px solid #1a56db !important;
+  outline: 2px solid var(--brand-500) !important;
   outline-offset: 2px !important;
 }
 
-/* Table rows */
-tbody tr {
-  transition: background-color 0.1s ease;
+/* ─── Misc ──────────────────────────────────────────────────── */
+.option-card { transition: all 0.15s ease; }
+.option-card:hover { transform: translateX(4px); }
+
+.sidebar-active {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-left: 3px solid var(--brand-500);
 }
 
-@layer utilities {
-  @keyframes blink {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0;
-    }
-  }
-  .animate-blink {
-    animation: blink 1s infinite;
-  }
-}
+tbody tr { transition: background-color 0.1s ease; }
 
+/* ─── Shadcn sidebar vars ───────────────────────────────────── */
 :root {
   --sidebar: hsl(0 0% 98%);
   --sidebar-foreground: hsl(240 5.3% 26.1%);
@@ -158,7 +215,6 @@ tbody tr {
   --sidebar-border: hsl(220 13% 91%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }
-
 .dark {
   --sidebar: hsl(240 5.9% 10%);
   --sidebar-foreground: hsl(240 4.8% 95.9%);
@@ -170,13 +226,10 @@ tbody tr {
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }
 
-@theme inline {
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+@layer utilities {
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+  .animate-blink { animation: blink 1s infinite; }
 }

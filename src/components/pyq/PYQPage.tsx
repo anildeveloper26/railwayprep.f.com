@@ -9,7 +9,7 @@ import { DiscussionForum } from "@/components/discussion/DiscussionForum";
 import { useLanguage } from "@/lib/context/LanguageContext";
 
 const SUBJECTS = [
-  { key: "all",       label: "All Subjects",      color: "bg-blue-600" },
+  { key: "all",       label: "All Subjects",      color: "bg-orange-500" },
   { key: "maths",     label: "Mathematics",       color: "bg-green-600" },
   { key: "reasoning", label: "Reasoning",         color: "bg-purple-600" },
   { key: "gk",        label: "General Knowledge", color: "bg-orange-600" },
@@ -68,7 +68,7 @@ export function PYQPage() {
       {/* Header */}
       <div>
         <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <BookOpen size={20} className="text-blue-600" /> PYQ Question Bank
+          <BookOpen size={20} className="text-orange-500" /> PYQ Question Bank
         </h1>
         <p className="text-gray-500 text-sm mt-0.5">Previous year questions with explanations</p>
       </div>
@@ -82,14 +82,14 @@ export function PYQPage() {
             className={cn(
               "rounded-xl p-3 text-left border-2 transition-all",
               subject === s.key
-                ? "border-blue-500 bg-blue-50 shadow-md"
-                : "border-gray-100 bg-white hover:border-blue-200 shadow-sm"
+                ? "border-orange-500 bg-orange-50 shadow-md"
+                : "border-gray-100 bg-white hover:border-orange-200 shadow-sm"
             )}
           >
             <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center mb-2", s.color)}>
               <BookOpen size={14} className="text-white" />
             </div>
-            <div className={cn("text-xs font-semibold", subject === s.key ? "text-blue-700" : "text-gray-700")}>
+            <div className={cn("text-xs font-semibold", subject === s.key ? "text-orange-700" : "text-gray-700")}>
               {s.label}
             </div>
             <div className="text-[11px] text-gray-400 mt-0.5">{s.count} loaded</div>
@@ -105,7 +105,7 @@ export function PYQPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search questions..."
-            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -116,8 +116,8 @@ export function PYQPage() {
               className={cn(
                 "text-xs px-3 py-2 rounded-lg border font-medium transition",
                 year === y
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white text-gray-600 border-gray-200 hover:border-blue-300"
+                  ? "bg-orange-500 text-white border-orange-500"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"
               )}
             >
               {y}
@@ -137,7 +137,7 @@ export function PYQPage() {
             {visibleTopics.map(t => (
               <button
                 key={t.topic}
-                className="flex items-center gap-1.5 bg-gray-50 hover:bg-blue-50 border border-gray-100 hover:border-blue-200 text-gray-600 hover:text-blue-700 text-xs px-3 py-1.5 rounded-full transition"
+                className="flex items-center gap-1.5 bg-gray-50 hover:bg-orange-50 border border-gray-100 hover:border-orange-200 text-gray-600 hover:text-orange-600 text-xs px-3 py-1.5 rounded-full transition"
               >
                 {t.topic} <span className="text-gray-400">({t.count})</span>
               </button>
@@ -154,7 +154,7 @@ export function PYQPage() {
 
         {questionsLoading ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2 size={28} className="animate-spin text-blue-600" />
+            <Loader2 size={28} className="animate-spin text-orange-500" />
           </div>
         ) : (
           <>
@@ -172,7 +172,7 @@ export function PYQPage() {
                       <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium", getDifficultyColor(q.difficulty))}>
                         {q.difficulty}
                       </span>
-                      <span className="bg-blue-50 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-medium capitalize">
+                      <span className="bg-orange-50 text-orange-700 text-[10px] px-2 py-0.5 rounded-full font-medium capitalize">
                         {q.subject}
                       </span>
                       <span className="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full font-medium">
@@ -216,9 +216,9 @@ export function PYQPage() {
                         </div>
                       ))}
                     </div>
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
-                      <div className="text-xs font-semibold text-blue-700 mb-1">💡 Explanation</div>
-                      <p className="text-sm text-blue-800">{q.explanation}</p>
+                    <div className="bg-orange-50 border border-orange-200 rounded-xl p-3">
+                      <div className="text-xs font-semibold text-orange-700 mb-1">💡 Explanation</div>
+                      <p className="text-sm text-orange-800">{q.explanation}</p>
                     </div>
                     <DiscussionForum questionId={q.id} />
                   </div>
@@ -246,7 +246,7 @@ export function PYQPage() {
                 <span className="px-4 py-2 text-sm text-gray-500">Page {page}</span>
                 <button
                   onClick={() => setPage(p => p + 1)}
-                  className="px-4 py-2 text-sm border border-blue-200 rounded-xl text-blue-600 hover:bg-blue-50 transition"
+                  className="px-4 py-2 text-sm border border-orange-200 rounded-xl text-orange-600 hover:bg-orange-50 transition"
                 >
                   Next
                 </button>

@@ -24,6 +24,7 @@ import { Route as LayoutNotificationsRouteImport } from './routes/_layout/notifi
 import { Route as LayoutMockTestsRouteImport } from './routes/_layout/mock-tests'
 import { Route as LayoutLeaderboardRouteImport } from './routes/_layout/leaderboard'
 import { Route as LayoutFlashcardsRouteImport } from './routes/_layout/flashcards'
+import { Route as LayoutExamRouteImport } from './routes/_layout/exam'
 import { Route as LayoutEventsRouteImport } from './routes/_layout/events'
 import { Route as LayoutDashboardRouteImport } from './routes/_layout/dashboard'
 import { Route as LayoutDailyChallengeRouteImport } from './routes/_layout/daily-challenge'
@@ -105,6 +106,11 @@ const LayoutFlashcardsRoute = LayoutFlashcardsRouteImport.update({
   path: '/flashcards',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutExamRoute = LayoutExamRouteImport.update({
+  id: '/exam',
+  path: '/exam',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutEventsRoute = LayoutEventsRouteImport.update({
   id: '/events',
   path: '/events',
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/daily-challenge': typeof LayoutDailyChallengeRoute
   '/dashboard': typeof LayoutDashboardRoute
   '/events': typeof LayoutEventsRoute
+  '/exam': typeof LayoutExamRoute
   '/flashcards': typeof LayoutFlashcardsRoute
   '/leaderboard': typeof LayoutLeaderboardRoute
   '/mock-tests': typeof LayoutMockTestsRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/daily-challenge': typeof LayoutDailyChallengeRoute
   '/dashboard': typeof LayoutDashboardRoute
   '/events': typeof LayoutEventsRoute
+  '/exam': typeof LayoutExamRoute
   '/flashcards': typeof LayoutFlashcardsRoute
   '/leaderboard': typeof LayoutLeaderboardRoute
   '/mock-tests': typeof LayoutMockTestsRoute
@@ -191,6 +199,7 @@ export interface FileRoutesById {
   '/_layout/daily-challenge': typeof LayoutDailyChallengeRoute
   '/_layout/dashboard': typeof LayoutDashboardRoute
   '/_layout/events': typeof LayoutEventsRoute
+  '/_layout/exam': typeof LayoutExamRoute
   '/_layout/flashcards': typeof LayoutFlashcardsRoute
   '/_layout/leaderboard': typeof LayoutLeaderboardRoute
   '/_layout/mock-tests': typeof LayoutMockTestsRoute
@@ -215,6 +224,7 @@ export interface FileRouteTypes {
     | '/daily-challenge'
     | '/dashboard'
     | '/events'
+    | '/exam'
     | '/flashcards'
     | '/leaderboard'
     | '/mock-tests'
@@ -237,6 +247,7 @@ export interface FileRouteTypes {
     | '/daily-challenge'
     | '/dashboard'
     | '/events'
+    | '/exam'
     | '/flashcards'
     | '/leaderboard'
     | '/mock-tests'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
     | '/_layout/daily-challenge'
     | '/_layout/dashboard'
     | '/_layout/events'
+    | '/_layout/exam'
     | '/_layout/flashcards'
     | '/_layout/leaderboard'
     | '/_layout/mock-tests'
@@ -388,6 +400,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutFlashcardsRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/exam': {
+      id: '/_layout/exam'
+      path: '/exam'
+      fullPath: '/exam'
+      preLoaderRoute: typeof LayoutExamRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/events': {
       id: '/_layout/events'
       path: '/events'
@@ -439,6 +458,7 @@ interface LayoutRouteChildren {
   LayoutDailyChallengeRoute: typeof LayoutDailyChallengeRoute
   LayoutDashboardRoute: typeof LayoutDashboardRoute
   LayoutEventsRoute: typeof LayoutEventsRoute
+  LayoutExamRoute: typeof LayoutExamRoute
   LayoutFlashcardsRoute: typeof LayoutFlashcardsRoute
   LayoutLeaderboardRoute: typeof LayoutLeaderboardRoute
   LayoutMockTestsRoute: typeof LayoutMockTestsRoute
@@ -459,6 +479,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutDailyChallengeRoute: LayoutDailyChallengeRoute,
   LayoutDashboardRoute: LayoutDashboardRoute,
   LayoutEventsRoute: LayoutEventsRoute,
+  LayoutExamRoute: LayoutExamRoute,
   LayoutFlashcardsRoute: LayoutFlashcardsRoute,
   LayoutLeaderboardRoute: LayoutLeaderboardRoute,
   LayoutMockTestsRoute: LayoutMockTestsRoute,

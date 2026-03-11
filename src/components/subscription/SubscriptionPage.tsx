@@ -37,7 +37,7 @@ export function SubscriptionPage() {
   if (plansLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={32} className="animate-spin text-blue-600" />
+        <Loader2 size={32} className="animate-spin text-orange-500" />
       </div>
     );
   }
@@ -47,21 +47,21 @@ export function SubscriptionPage() {
       {/* Header */}
       <div className="text-center">
         <h1 className="text-2xl font-bold text-gray-900 flex items-center justify-center gap-2 mb-2">
-          <CreditCard size={24} className="text-blue-600" /> Choose Your Plan
+          <CreditCard size={24} className="text-orange-500" /> Choose Your Plan
         </h1>
         <p className="text-gray-500">Affordable pricing designed for every aspirant's budget</p>
       </div>
 
       {/* Current Plan Banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
-        <p className="text-blue-700 text-sm">
+      <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
+        <p className="text-orange-700 text-sm">
           Current plan: <span className="font-bold capitalize">{currentPlan}</span>
           {currentPlan !== "annual" && (
-            <span className="ml-2 text-blue-600">— Upgrade to unlock all features</span>
+            <span className="ml-2 text-orange-600">— Upgrade to unlock all features</span>
           )}
         </p>
         {mySubscription?.expiresAt && (
-          <p className="text-blue-500 text-xs mt-1">
+          <p className="text-orange-500 text-xs mt-1">
             Expires: {new Date(mySubscription.expiresAt).toLocaleDateString("en-IN")}
           </p>
         )}
@@ -78,14 +78,14 @@ export function SubscriptionPage() {
                 className={cn(
                   "rounded-2xl border-2 p-5 flex flex-col relative transition-shadow",
                   plan.isPopular
-                    ? "border-blue-500 shadow-xl shadow-blue-100"
+                    ? "border-orange-500 shadow-xl shadow-orange-100"
                     : "border-gray-100 shadow-sm hover:shadow-md"
                 )}
               >
                 {plan.badge && (
                   <div className={cn(
                     "absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap",
-                    plan.isPopular ? "bg-blue-600 text-white" : "bg-gray-800 text-white"
+                    plan.isPopular ? "bg-orange-500 text-white" : "bg-gray-800 text-white"
                   )}>
                     {plan.badge}
                   </div>
@@ -116,7 +116,7 @@ export function SubscriptionPage() {
                     className={cn(
                       "w-full py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2",
                       plan.isPopular
-                        ? "bg-blue-600 text-white hover:bg-blue-700"
+                        ? "bg-orange-500 text-white hover:bg-orange-600"
                         : plan.id === "free"
                         ? "border-2 border-gray-200 text-gray-600 hover:bg-gray-50"
                         : "bg-gray-900 text-white hover:bg-gray-800"
