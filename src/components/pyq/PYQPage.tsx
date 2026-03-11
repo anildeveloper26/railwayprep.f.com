@@ -5,6 +5,8 @@ import { questionsApi } from "@/lib/api";
 import { adaptQuestion } from "@/lib/interfaces";
 import type { ApiPYQTopic } from "@/lib/interfaces";
 import { cn, getDifficultyColor } from "@/lib/utils";
+import { DiscussionForum } from "@/components/discussion/DiscussionForum";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 const SUBJECTS = [
   { key: "all",       label: "All Subjects",      color: "bg-blue-600" },
@@ -17,6 +19,7 @@ const SUBJECTS = [
 const YEARS = ["All", "2022", "2021", "2020", "2019", "2018"];
 
 export function PYQPage() {
+  const { isHindi } = useLanguage();
   const [subject, setSubject] = useState("all");
   const [year, setYear] = useState("All");
   const [search, setSearch] = useState("");
@@ -179,9 +182,13 @@ export function PYQPage() {
                         {q.year}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-800 font-medium leading-relaxed">{q.questionText}</p>
+                    <p className="text-sm text-gray-800 font-medium leading-relaxed">
+                      {isHindi && (q as unknown as { questionTextHindi?: string }).questionTextHindi
+                        ? (q as unknown as { questionTextHindi: string }).questionTextHindi
+                        : q.questionText}
+                    </p>
                   </div>
-                  <div className="ml-2 flex-shrink-0 text-gray-400">
+                  <div className="ml-2 shrink-0 text-gray-400">
                     {expanded === q.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </div>
                 </button>
@@ -200,7 +207,7 @@ export function PYQPage() {
                           )}
                         >
                           <span className={cn(
-                            "w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0",
+                            "w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0",
                             i === q.correctAnswer ? "bg-green-500 text-white" : "bg-gray-100 text-gray-500"
                           )}>
                             {String.fromCharCode(65 + i)}
@@ -213,6 +220,7 @@ export function PYQPage() {
                       <div className="text-xs font-semibold text-blue-700 mb-1">💡 Explanation</div>
                       <p className="text-sm text-blue-800">{q.explanation}</p>
                     </div>
+                    <DiscussionForum questionId={q.id} />
                   </div>
                 )}
               </div>

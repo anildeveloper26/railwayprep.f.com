@@ -9,6 +9,7 @@ import {
 import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 import appCss from "src/styles/app.css?url";
+import { LanguageProvider } from "@/lib/context/LanguageContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,10 +34,12 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RootDocument>
-        <Outlet />
-        <Toaster richColors closeButton position="top-right" />
-      </RootDocument>
+      <LanguageProvider>
+        <RootDocument>
+          <Outlet />
+          <Toaster richColors closeButton position="top-right" />
+        </RootDocument>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

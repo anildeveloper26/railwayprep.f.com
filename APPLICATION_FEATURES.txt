@@ -1,0 +1,294 @@
+================================================================================
+  RAILWAYPREP — COMPLETE APPLICATION FEATURES
+================================================================================
+
+TARGET AUDIENCE : Railway exam aspirants (RRB NTPC, Group D, JE, ALP, Technician)
+TECH STACK      : React 19 + TanStack Router + TanStack React Query + Tailwind CSS
+API BASE URL    : https://railwayprep-repo.onrender.com/api/v1
+AUTH METHOD     : Bearer token stored in cookie (rrb_token)
+
+================================================================================
+1. AUTHENTICATION
+================================================================================
+
+LOGIN PAGE (/login)
+  - Email + password fields with password visibility toggle
+  - Form validation with inline error messages
+  - Loading state on submit
+  - Redirect to dashboard on success
+  - Link to registration page
+
+REGISTRATION PAGE (/register)
+  - Fields: Full Name, Email, Password (min 6 chars), Category, Target Exam
+  - Category options: UR, SC, ST, OBC, EWS
+  - Category benefit banner explaining age relaxation, fee waiver, lower cutoffs
+  - Target exam dropdown: RRB NTPC, RRB Group D, RRB JE, RRB ALP, Technician
+  - Error handling and loading state
+  - Stores access token in cookie on success
+
+LOGOUT
+  - Available from sidebar bottom (with confirmation)
+  - Clears rrb_token cookie and redirects to login
+
+================================================================================
+2. NAVIGATION & LAYOUT
+================================================================================
+
+SIDEBAR (Desktop)
+  - Collapsible: 240px expanded / 64px collapsed (icon-only)
+  - Logo and "RailwayPrep" branding
+  - Displays logged-in user name and target exam (hidden when collapsed)
+  - Blue gradient background with active-route highlight
+  - Section — Preparation:
+      Dashboard, Mock Tests, PYQ Bank, Notifications,
+      Study Planner, SC/ST/OBC Guide, Analytics, Leaderboard, Subscription
+  - Section — Management:
+      Admin Panel (visible only to admin users)
+  - Logout button at bottom
+
+MOBILE NAVIGATION
+  - Top bar with hamburger menu icon and RailwayPrep logo
+  - Slide-out overlay sidebar with same navigation items
+
+================================================================================
+3. DASHBOARD (/dashboard)
+================================================================================
+
+  - Welcome banner with user's name, average score, and current rank
+  - Upgrade prompt banner for free-plan users (₹199/mo premium offer)
+  - Quick Stats cards:
+      Tests Taken | Avg Score | Rank | Target Exam
+  - Weekly Activity line chart (questions solved per day)
+  - Quick Access buttons linking to: Tests, PYQ Bank, Analytics, Planner, Leaderboard
+  - Recent Tests section:
+      List of last attempted tests with best score badges and "Retake" button
+  - Latest Notification banner at bottom
+
+================================================================================
+4. MOCK TESTS (/mock-tests)
+================================================================================
+
+TEST LISTING PAGE
+  - Responsive grid (1 / 2 / 3 columns)
+  - Exam filter tabs: All | RRB NTPC | RRB Group D | RRB JE | RRB ALP
+  - Difficulty filter tabs: All | Easy | Medium | Hard
+  - Completion counters: X Completed, Y Pending
+  - Loading and error states
+  - Empty state when filters match nothing
+
+TEST CARD (per test)
+  - Title with completion checkmark if already attempted
+  - Badges: Exam type, Difficulty, Negative Marking indicator
+  - Stats: Question count, Duration (minutes), Total Attempts
+  - Best score badge (shown only if previously attempted)
+  - "Start Test" or "Retake Test" action button
+
+TEST-TAKING INTERFACE (/take-test/:testId)
+  - Full-screen layout with top bar showing:
+      Test title, exam type, answered/skipped count, countdown timer
+  - Timer turns red when less than 5 minutes remain
+  - Auto-submit when timer reaches 0:00
+  - Flag button to mark questions for review
+  - Question display:
+      Subject and topic label, question number, question text
+  - Multiple-choice options (A/B/C/D) with visual selection state
+  - Navigation: Previous | Skip (jumps to next unanswered) | Next
+  - Question Navigator sidebar (right):
+      Grid of question buttons color-coded by status —
+        Blue = Current, Green = Answered, Orange = Flagged, Gray = Not Visited
+      Summary: answered / unanswered / flagged counts
+  - Submit button opens confirmation modal with attempt summary
+
+RESULT VIEW (after submission)
+  - Percentage score with grade label:
+      Excellent! (≥80%) | Good Job! (≥60%) | Keep Going! (≥40%) | Needs Improvement (<40%)
+  - Stats grid: Score, Correct, Wrong, Skipped
+  - Time taken and accuracy percentage
+  - Full answer review for every question:
+      Correct answer highlighted green, user's wrong answer shown in red, skipped in gray
+      Explanation shown for each question
+  - Action buttons: All Tests | View Analytics
+
+================================================================================
+5. PREVIOUS YEAR QUESTIONS — PYQ BANK (/pyq)
+================================================================================
+
+  - Subject filter cards with question counts:
+      All Subjects | Maths | Reasoning | GK | Technical
+  - Year filter buttons: All | 2022 | 2021 | 2020 | 2019 | 2018
+  - Text search box (filters questions by text content)
+  - "Most Tested Topics" panel (top 10 topics with question count)
+  - Paginated question list (Previous / Page X / Next)
+  - Per question card (expandable):
+      Question number, difficulty badge, subject/topic/year tags
+      Question text
+      All options in a 2-column grid (correct answer highlighted green)
+      Explanation in a blue info box
+
+================================================================================
+6. PERFORMANCE ANALYTICS (/analytics)
+================================================================================
+
+  - KPI cards (top row):
+      Overall Accuracy | Avg Score | Avg Time per Question | Tests Attempted
+  - Subject-wise Performance — horizontal bar chart
+  - Score Trend — line chart of last N test scores over time
+  - Weekly Activity — bar chart of questions solved per day
+  - Topic-wise Accuracy — progress bars per topic with %-based color coding:
+      Green ≥80% | Blue ≥60% | Yellow ≥40% | Red <40%
+  - Strong Topics panel (green badges)
+  - Needs Improvement / Weak Topics panel (red "Focus more" badges)
+  - Empty state when no attempts recorded yet
+
+================================================================================
+7. LEADERBOARD (/leaderboard)
+================================================================================
+
+  - Category filter: All | UR | SC | ST | OBC | EWS
+  - Personal Rank Banner showing logged-in user's:
+      Rank | Avg Score | Tests Taken | Category
+  - Top 3 Podium (prominent display for 1st, 2nd, 3rd with medal emojis)
+  - Full Rankings Table:
+      Rank number (gold/silver/bronze medals for top 3)
+      Avatar (name initial in colored circle)
+      Name with "You" badge for current user
+      Test count and category
+      Avg score percentage
+      Total points
+      Highlighted row for current user, hover effect for others
+  - Empty state when no users in a selected category
+
+================================================================================
+8. STUDY PLANNER (/planner)
+================================================================================
+
+  - Target exam selector dropdown in header
+  - "Add New Task" toggle button to show/hide task creation form
+
+ADD TASK FORM (collapsible)
+  - Fields: Task Title, Subject, Topic, Priority, Target Date, Duration (minutes)
+  - Priority options: High (red) | Medium (yellow) | Low (gray)
+
+STATS CARDS
+  - Progress % | Days Remaining | Completed / Total Tasks | Pending Tasks
+  - Overall progress bar with percentage
+
+TASK LIST
+  - Checkbox to toggle completion (circle → filled checkmark with strikethrough)
+  - Task title, subject, topic
+  - Priority badge color-coded
+  - Duration estimate
+  - Delete button
+  - Toast notifications for task add / delete
+  - Empty state when no tasks
+
+================================================================================
+9. SUBSCRIPTION (/subscription)
+================================================================================
+
+  - Current plan banner (plan name + expiration date)
+  - Plans grid (responsive 1 / 2 / 4 columns):
+      Plan name, price (₹X / duration)
+      Popular/Recommended badge
+      Feature checklist
+      "Current Plan ✓" (if active) or "Subscribe Now" button
+      Blue styling for popular plans
+  - Payment methods banner: Razorpay — UPI, cards, net banking, EMI
+  - FAQ section (4 items):
+      Cancellation policy | Payment methods | Free trial | Refund policy
+
+================================================================================
+10. NOTIFICATIONS (/notifications)
+================================================================================
+
+  - Notification count badge in header
+  - Summary cards: Total | Info | Warnings | Success counts
+  - Notification cards with type-based color coding:
+      Info (blue) | Warning (yellow) | Success (green) | Error (red)
+      Colored top-border indicator dot
+      Type badge, title, message, formatted date
+  - Empty state when no notifications
+
+================================================================================
+11. SC/ST/OBC GUIDE (/reservation)
+================================================================================
+
+  - Static informational page (no API)
+  - Explains reservation benefits for each category:
+      SC/ST — Age relaxation, fee waiver, lower cutoff percentages
+      OBC-NCL — Age relaxation, partial fee concession
+      EWS — Age relaxation for economically weaker sections
+  - Reference for aspirants to understand their eligibility advantages
+
+================================================================================
+12. ADMIN PANEL (/admin)  — admin users only
+================================================================================
+
+4-TAB INTERFACE:
+
+TAB 1 — OVERVIEW
+  - Stats cards: Total Users | Mock Tests | Questions in Bank | Active Subscriptions
+  - Recent Activity timeline: action type, detail, timestamp
+
+TAB 2 — MOCK TESTS
+  - Searchable table of all tests (filter by title)
+  - Columns: Title, Exam, Difficulty, Questions, Duration, Actions
+  - Actions: Edit | Delete per row
+  - "Add Test" button (top right)
+
+TAB 3 — NOTIFICATIONS
+  - List of all system notifications
+  - Actions: Edit | Delete per notification
+  - "Add Notification" button
+
+TAB 4 — USERS
+  - Searchable user table (filter by name or email)
+  - Columns: Name, Email, Category, Tests Attempted, Avg Score, Actions
+  - Action: Delete user
+
+================================================================================
+13. API SURFACE SUMMARY
+================================================================================
+
+AUTH          POST /auth/login, /auth/register
+              GET  /auth/me
+              PATCH /auth/me (profile update)
+              POST /auth/logout
+
+TESTS         GET  /tests?exam=&difficulty=&limit=
+              GET  /tests/:id
+              GET  /tests/:id/review
+
+QUESTIONS     GET  /questions?subject=&difficulty=&isPYQ=&page=&limit=
+              GET  /questions/pyq-topics
+
+ATTEMPTS      POST /attempts/:testId/submit
+              GET  /attempts
+              GET  /attempts/:id
+
+ANALYTICS     GET  /analytics
+
+LEADERBOARD   GET  /leaderboard
+
+NOTIFICATIONS GET  /notifications
+              GET  /notifications/:id
+
+SUBSCRIPTIONS GET  /subscriptions/plans
+              GET  /subscriptions/my
+              POST /subscriptions/order
+              POST /subscriptions/verify
+
+PLANNER       GET  /planner
+              GET  /planner/stats
+              POST /planner
+              PATCH /planner/:id
+              DELETE /planner/:id
+
+ADMIN         GET  /admin/dashboard
+              GET  /admin/stats
+              GET  /admin/users
+              PATCH /admin/users/:id/deactivate
+
+================================================================================
+END OF DOCUMENT
+================================================================================

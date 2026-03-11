@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Calendar, CheckCircle2, Circle, Zap, Target, Clock, Plus, Trash2, Loader2 } from "lucide-react";
+import { Calendar, CheckCircle2, Circle, Zap, Target, Clock, Plus, Trash2, Loader2, Sparkles } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { plannerApi, authApi } from "@/lib/api";
+import { plannerApi, authApi, aiApi } from "@/lib/api";
 import { adaptUser } from "@/lib/interfaces";
 import type { ApiPlannerTask } from "@/lib/interfaces";
 import { cn } from "@/lib/utils";
@@ -27,6 +27,7 @@ export function PlannerPage() {
   });
 
   const [targetExam, setTargetExam] = useState(user?.targetExam ?? "RRB NTPC");
+  const [examDate, setExamDate] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [newTask, setNewTask] = useState({
     title: "", subject: "Mathematics", topic: "",
@@ -50,6 +51,16 @@ export function PlannerPage() {
       queryClient.invalidateQueries({ queryKey: ["planner-stats"] });
       toast.success("Task deleted");
     },
+  });
+
+  const aiPlanMutation = useMutation({
+    mutationFn: (date: string) => aiApi.generateStudyPlan(date),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["planner-tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["planner-stats"] });
+      toast.success(`AI generated ${(res as { tasks: unknown[] }).tasks?.length ?? 0} tasks!`);
+    },
+    onError: () => toast.error("AI plan generation failed"),
   });
 
   const createMutation = useMutation({
@@ -104,6 +115,29 @@ export function PlannerPage() {
               className="w-full bg-yellow-400 text-yellow-900 font-bold py-2.5 rounded-xl hover:bg-yellow-300 transition flex items-center justify-center gap-2"
             >
               <Plus size={16} /> Add New Task
+            </button>
+          </div>
+        </div>
+        <div className="mt-3 pt-3 border-t border-white/10">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles size={14} className="text-yellow-300" />
+            <span className="text-blue-100 text-xs font-medium">Generate AI Study Plan</span>
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="date"
+              value={examDate}
+              onChange={e => setExamDate(e.target.value)}
+              className="flex-1 bg-white/15 border border-white/20 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/30"
+              placeholder="Exam date"
+            />
+            <button
+              onClick={() => examDate && aiPlanMutation.mutate(examDate)}
+              disabled={!examDate || aiPlanMutation.isPending}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold rounded-xl disabled:opacity-50 transition flex items-center gap-1.5"
+            >
+              {aiPlanMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+              Generate
             </button>
           </div>
         </div>

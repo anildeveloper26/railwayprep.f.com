@@ -1,23 +1,59 @@
 import { useState } from "react";
 import {
   Settings, Users, FileText, Bell, BarChart2,
-  Plus, Edit2, Trash2, Search, Loader2,
+  Plus, Edit2, Trash2, Search, Loader2, Sparkles,
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { adminApi, testsApi, notificationsApi } from "@/lib/api";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { adminApi, testsApi, notificationsApi, aiApi } from "@/lib/api";
 import { adaptTest } from "@/lib/interfaces";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const TABS = [
-  { key: "overview",       icon: BarChart2, label: "Overview" },
-  { key: "tests",          icon: FileText,  label: "Mock Tests" },
-  { key: "notifications",  icon: Bell,      label: "Notifications" },
-  { key: "users",          icon: Users,     label: "Users" },
+  { key: "overview",      icon: BarChart2, label: "Overview" },
+  { key: "tests",         icon: FileText,  label: "Mock Tests" },
+  { key: "notifications", icon: Bell,      label: "Notifications" },
+  { key: "users",         icon: Users,     label: "Users" },
+  { key: "ai-questions",  icon: Sparkles,  label: "AI Questions" },
 ];
+
+type ExtractedQuestion = {
+  questionText: string; options: Array<{ key: string; text: string }>;
+  correctOption: string; explanation: string; topic: string;
+  difficulty: string; subject: string; exam: string; confidence: number;
+};
 
 export function AdminPage() {
   const [tab, setTab] = useState("overview");
   const [search, setSearch] = useState("");
+  const [aiText, setAiText] = useState("");
+  const [aiSubject, setAiSubject] = useState("");
+  const [extractedQuestions, setExtractedQuestions] = useState<ExtractedQuestion[]>([]);
+  const [selectedQIds, setSelectedQIds] = useState<Set<number>>(new Set());
+
+  const extractMutation = useMutation({
+    mutationFn: () => aiApi.extractQuestions({ text: aiText, subject: aiSubject || undefined }),
+    onSuccess: (res) => {
+      const qs = (res as { questions: ExtractedQuestion[] }).questions ?? [];
+      setExtractedQuestions(qs);
+      setSelectedQIds(new Set(qs.map((_, i) => i)));
+      toast.success(`Extracted ${qs.length} questions`);
+    },
+    onError: () => toast.error("Extraction failed"),
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: () => {
+      const toSave = extractedQuestions.filter((_, i) => selectedQIds.has(i));
+      return aiApi.approveQuestions(toSave);
+    },
+    onSuccess: (res) => {
+      toast.success(`Saved ${(res as { saved: number }).saved} questions to bank`);
+      setExtractedQuestions([]);
+      setAiText("");
+    },
+    onError: () => toast.error("Approval failed"),
+  });
 
   const { data: dashboard, isLoading: dashLoading } = useQuery({
     queryKey: ["admin-dashboard"],
@@ -267,6 +303,94 @@ export function AdminPage() {
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* AI Questions Tab */}
+      {tab === "ai-questions" && (
+        <div className="space-y-5">
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-3">
+            <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+              <Sparkles size={16} className="text-purple-500" /> Extract Questions with AI
+            </h3>
+            <div>
+              <label className="text-xs text-gray-500 mb-1 block">Subject (optional)</label>
+              <input
+                value={aiSubject}
+                onChange={e => setAiSubject(e.target.value)}
+                placeholder="e.g. Mathematics"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 mb-1 block">Paste question text / PDF content</label>
+              <textarea
+                value={aiText}
+                onChange={e => setAiText(e.target.value)}
+                rows={8}
+                placeholder="Paste raw text containing MCQ questions here..."
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+              />
+            </div>
+            <button
+              onClick={() => extractMutation.mutate()}
+              disabled={!aiText.trim() || extractMutation.isPending}
+              className="flex items-center gap-2 bg-purple-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-purple-700 disabled:opacity-50 transition"
+            >
+              {extractMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+              Extract Questions
+            </button>
+          </div>
+
+          {extractedQuestions.length > 0 && (
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-gray-800">{extractedQuestions.length} questions extracted</h3>
+                <button
+                  onClick={() => approveMutation.mutate()}
+                  disabled={selectedQIds.size === 0 || approveMutation.isPending}
+                  className="flex items-center gap-1.5 bg-green-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-green-700 disabled:opacity-50 transition"
+                >
+                  {approveMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : null}
+                  Save {selectedQIds.size} to Bank
+                </button>
+              </div>
+              <div className="space-y-3">
+                {extractedQuestions.map((q, i) => (
+                  <div key={i} className={cn("border rounded-xl p-4 cursor-pointer transition", selectedQIds.has(i) ? "border-green-400 bg-green-50" : "border-gray-200 bg-white")}
+                    onClick={() => setSelectedQIds(prev => {
+                      const next = new Set(prev);
+                      next.has(i) ? next.delete(i) : next.add(i);
+                      return next;
+                    })}>
+                    <div className="flex items-start gap-3">
+                      <div className={cn("w-5 h-5 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center",
+                        selectedQIds.has(i) ? "border-green-500 bg-green-500" : "border-gray-300")}>
+                        {selectedQIds.has(i) && <span className="text-white text-[10px] font-bold">✓</span>}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-800 mb-2">{q.questionText}</p>
+                        <div className="grid grid-cols-2 gap-1.5 mb-2">
+                          {q.options.map(opt => (
+                            <div key={opt.key} className={cn("text-xs px-2 py-1 rounded-lg border",
+                              opt.key === q.correctOption ? "bg-green-50 border-green-300 text-green-700 font-semibold" : "bg-gray-50 border-gray-200 text-gray-600")}>
+                              {opt.key}. {opt.text}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex gap-2 text-[10px]">
+                          <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">{q.subject}</span>
+                          <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{q.difficulty}</span>
+                          <span className="bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">{q.topic}</span>
+                          <span className="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full">{Math.round(q.confidence * 100)}% confidence</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

@@ -1,4 +1,5 @@
 import { BarChart2, TrendingUp, Target, Clock, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { analyticsApi, authApi } from "@/lib/api";
 import { adaptUser } from "@/lib/interfaces";
@@ -114,6 +115,22 @@ export function AnalyticsPage() {
               <Bar dataKey="questions" name="Questions" fill="#1a56db" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* Drill CTA */}
+      {weakTopics.length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-between gap-4">
+          <div>
+            <div className="font-semibold text-red-700 text-sm">You have weak topics to improve</div>
+            <div className="text-red-500 text-xs mt-0.5">{weakTopics.length} topic{weakTopics.length > 1 ? "s" : ""} need focus</div>
+          </div>
+          <Link
+            to="/weakness-drill"
+            className="shrink-0 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-4 py-2 rounded-xl flex items-center gap-2 transition-colors"
+          >
+            <Target size={14} /> Drill My Weak Topics
+          </Link>
         </div>
       )}
 

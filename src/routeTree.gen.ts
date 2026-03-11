@@ -13,14 +13,20 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LayoutWeaknessDrillRouteImport } from './routes/_layout/weakness-drill'
 import { Route as LayoutSubscriptionRouteImport } from './routes/_layout/subscription'
+import { Route as LayoutSquadsRouteImport } from './routes/_layout/squads'
 import { Route as LayoutReservationRouteImport } from './routes/_layout/reservation'
+import { Route as LayoutReferralRouteImport } from './routes/_layout/referral'
 import { Route as LayoutPyqRouteImport } from './routes/_layout/pyq'
 import { Route as LayoutPlannerRouteImport } from './routes/_layout/planner'
 import { Route as LayoutNotificationsRouteImport } from './routes/_layout/notifications'
 import { Route as LayoutMockTestsRouteImport } from './routes/_layout/mock-tests'
 import { Route as LayoutLeaderboardRouteImport } from './routes/_layout/leaderboard'
+import { Route as LayoutFlashcardsRouteImport } from './routes/_layout/flashcards'
+import { Route as LayoutEventsRouteImport } from './routes/_layout/events'
 import { Route as LayoutDashboardRouteImport } from './routes/_layout/dashboard'
+import { Route as LayoutDailyChallengeRouteImport } from './routes/_layout/daily-challenge'
 import { Route as LayoutAnalyticsRouteImport } from './routes/_layout/analytics'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutTakeTestTestIdRouteImport } from './routes/_layout/take-test.$testId'
@@ -44,14 +50,29 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LayoutWeaknessDrillRoute = LayoutWeaknessDrillRouteImport.update({
+  id: '/weakness-drill',
+  path: '/weakness-drill',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutSubscriptionRoute = LayoutSubscriptionRouteImport.update({
   id: '/subscription',
   path: '/subscription',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutSquadsRoute = LayoutSquadsRouteImport.update({
+  id: '/squads',
+  path: '/squads',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutReservationRoute = LayoutReservationRouteImport.update({
   id: '/reservation',
   path: '/reservation',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutReferralRoute = LayoutReferralRouteImport.update({
+  id: '/referral',
+  path: '/referral',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutPyqRoute = LayoutPyqRouteImport.update({
@@ -79,9 +100,24 @@ const LayoutLeaderboardRoute = LayoutLeaderboardRouteImport.update({
   path: '/leaderboard',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutFlashcardsRoute = LayoutFlashcardsRouteImport.update({
+  id: '/flashcards',
+  path: '/flashcards',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutEventsRoute = LayoutEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutDashboardRoute = LayoutDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutDailyChallengeRoute = LayoutDailyChallengeRouteImport.update({
+  id: '/daily-challenge',
+  path: '/daily-challenge',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutAnalyticsRoute = LayoutAnalyticsRouteImport.update({
@@ -106,14 +142,20 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/admin': typeof LayoutAdminRoute
   '/analytics': typeof LayoutAnalyticsRoute
+  '/daily-challenge': typeof LayoutDailyChallengeRoute
   '/dashboard': typeof LayoutDashboardRoute
+  '/events': typeof LayoutEventsRoute
+  '/flashcards': typeof LayoutFlashcardsRoute
   '/leaderboard': typeof LayoutLeaderboardRoute
   '/mock-tests': typeof LayoutMockTestsRoute
   '/notifications': typeof LayoutNotificationsRoute
   '/planner': typeof LayoutPlannerRoute
   '/pyq': typeof LayoutPyqRoute
+  '/referral': typeof LayoutReferralRoute
   '/reservation': typeof LayoutReservationRoute
+  '/squads': typeof LayoutSquadsRoute
   '/subscription': typeof LayoutSubscriptionRoute
+  '/weakness-drill': typeof LayoutWeaknessDrillRoute
   '/take-test/$testId': typeof LayoutTakeTestTestIdRoute
 }
 export interface FileRoutesByTo {
@@ -122,14 +164,20 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/admin': typeof LayoutAdminRoute
   '/analytics': typeof LayoutAnalyticsRoute
+  '/daily-challenge': typeof LayoutDailyChallengeRoute
   '/dashboard': typeof LayoutDashboardRoute
+  '/events': typeof LayoutEventsRoute
+  '/flashcards': typeof LayoutFlashcardsRoute
   '/leaderboard': typeof LayoutLeaderboardRoute
   '/mock-tests': typeof LayoutMockTestsRoute
   '/notifications': typeof LayoutNotificationsRoute
   '/planner': typeof LayoutPlannerRoute
   '/pyq': typeof LayoutPyqRoute
+  '/referral': typeof LayoutReferralRoute
   '/reservation': typeof LayoutReservationRoute
+  '/squads': typeof LayoutSquadsRoute
   '/subscription': typeof LayoutSubscriptionRoute
+  '/weakness-drill': typeof LayoutWeaknessDrillRoute
   '/take-test/$testId': typeof LayoutTakeTestTestIdRoute
 }
 export interface FileRoutesById {
@@ -140,14 +188,20 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/_layout/admin': typeof LayoutAdminRoute
   '/_layout/analytics': typeof LayoutAnalyticsRoute
+  '/_layout/daily-challenge': typeof LayoutDailyChallengeRoute
   '/_layout/dashboard': typeof LayoutDashboardRoute
+  '/_layout/events': typeof LayoutEventsRoute
+  '/_layout/flashcards': typeof LayoutFlashcardsRoute
   '/_layout/leaderboard': typeof LayoutLeaderboardRoute
   '/_layout/mock-tests': typeof LayoutMockTestsRoute
   '/_layout/notifications': typeof LayoutNotificationsRoute
   '/_layout/planner': typeof LayoutPlannerRoute
   '/_layout/pyq': typeof LayoutPyqRoute
+  '/_layout/referral': typeof LayoutReferralRoute
   '/_layout/reservation': typeof LayoutReservationRoute
+  '/_layout/squads': typeof LayoutSquadsRoute
   '/_layout/subscription': typeof LayoutSubscriptionRoute
+  '/_layout/weakness-drill': typeof LayoutWeaknessDrillRoute
   '/_layout/take-test/$testId': typeof LayoutTakeTestTestIdRoute
 }
 export interface FileRouteTypes {
@@ -158,14 +212,20 @@ export interface FileRouteTypes {
     | '/register'
     | '/admin'
     | '/analytics'
+    | '/daily-challenge'
     | '/dashboard'
+    | '/events'
+    | '/flashcards'
     | '/leaderboard'
     | '/mock-tests'
     | '/notifications'
     | '/planner'
     | '/pyq'
+    | '/referral'
     | '/reservation'
+    | '/squads'
     | '/subscription'
+    | '/weakness-drill'
     | '/take-test/$testId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -174,14 +234,20 @@ export interface FileRouteTypes {
     | '/register'
     | '/admin'
     | '/analytics'
+    | '/daily-challenge'
     | '/dashboard'
+    | '/events'
+    | '/flashcards'
     | '/leaderboard'
     | '/mock-tests'
     | '/notifications'
     | '/planner'
     | '/pyq'
+    | '/referral'
     | '/reservation'
+    | '/squads'
     | '/subscription'
+    | '/weakness-drill'
     | '/take-test/$testId'
   id:
     | '__root__'
@@ -191,14 +257,20 @@ export interface FileRouteTypes {
     | '/register'
     | '/_layout/admin'
     | '/_layout/analytics'
+    | '/_layout/daily-challenge'
     | '/_layout/dashboard'
+    | '/_layout/events'
+    | '/_layout/flashcards'
     | '/_layout/leaderboard'
     | '/_layout/mock-tests'
     | '/_layout/notifications'
     | '/_layout/planner'
     | '/_layout/pyq'
+    | '/_layout/referral'
     | '/_layout/reservation'
+    | '/_layout/squads'
     | '/_layout/subscription'
+    | '/_layout/weakness-drill'
     | '/_layout/take-test/$testId'
   fileRoutesById: FileRoutesById
 }
@@ -239,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_layout/weakness-drill': {
+      id: '/_layout/weakness-drill'
+      path: '/weakness-drill'
+      fullPath: '/weakness-drill'
+      preLoaderRoute: typeof LayoutWeaknessDrillRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/subscription': {
       id: '/_layout/subscription'
       path: '/subscription'
@@ -246,11 +325,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSubscriptionRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/squads': {
+      id: '/_layout/squads'
+      path: '/squads'
+      fullPath: '/squads'
+      preLoaderRoute: typeof LayoutSquadsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/reservation': {
       id: '/_layout/reservation'
       path: '/reservation'
       fullPath: '/reservation'
       preLoaderRoute: typeof LayoutReservationRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/referral': {
+      id: '/_layout/referral'
+      path: '/referral'
+      fullPath: '/referral'
+      preLoaderRoute: typeof LayoutReferralRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/pyq': {
@@ -288,11 +381,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutLeaderboardRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/flashcards': {
+      id: '/_layout/flashcards'
+      path: '/flashcards'
+      fullPath: '/flashcards'
+      preLoaderRoute: typeof LayoutFlashcardsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/events': {
+      id: '/_layout/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof LayoutEventsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/dashboard': {
       id: '/_layout/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof LayoutDashboardRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/daily-challenge': {
+      id: '/_layout/daily-challenge'
+      path: '/daily-challenge'
+      fullPath: '/daily-challenge'
+      preLoaderRoute: typeof LayoutDailyChallengeRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/analytics': {
@@ -322,28 +436,40 @@ declare module '@tanstack/react-router' {
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
   LayoutAnalyticsRoute: typeof LayoutAnalyticsRoute
+  LayoutDailyChallengeRoute: typeof LayoutDailyChallengeRoute
   LayoutDashboardRoute: typeof LayoutDashboardRoute
+  LayoutEventsRoute: typeof LayoutEventsRoute
+  LayoutFlashcardsRoute: typeof LayoutFlashcardsRoute
   LayoutLeaderboardRoute: typeof LayoutLeaderboardRoute
   LayoutMockTestsRoute: typeof LayoutMockTestsRoute
   LayoutNotificationsRoute: typeof LayoutNotificationsRoute
   LayoutPlannerRoute: typeof LayoutPlannerRoute
   LayoutPyqRoute: typeof LayoutPyqRoute
+  LayoutReferralRoute: typeof LayoutReferralRoute
   LayoutReservationRoute: typeof LayoutReservationRoute
+  LayoutSquadsRoute: typeof LayoutSquadsRoute
   LayoutSubscriptionRoute: typeof LayoutSubscriptionRoute
+  LayoutWeaknessDrillRoute: typeof LayoutWeaknessDrillRoute
   LayoutTakeTestTestIdRoute: typeof LayoutTakeTestTestIdRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
   LayoutAnalyticsRoute: LayoutAnalyticsRoute,
+  LayoutDailyChallengeRoute: LayoutDailyChallengeRoute,
   LayoutDashboardRoute: LayoutDashboardRoute,
+  LayoutEventsRoute: LayoutEventsRoute,
+  LayoutFlashcardsRoute: LayoutFlashcardsRoute,
   LayoutLeaderboardRoute: LayoutLeaderboardRoute,
   LayoutMockTestsRoute: LayoutMockTestsRoute,
   LayoutNotificationsRoute: LayoutNotificationsRoute,
   LayoutPlannerRoute: LayoutPlannerRoute,
   LayoutPyqRoute: LayoutPyqRoute,
+  LayoutReferralRoute: LayoutReferralRoute,
   LayoutReservationRoute: LayoutReservationRoute,
+  LayoutSquadsRoute: LayoutSquadsRoute,
   LayoutSubscriptionRoute: LayoutSubscriptionRoute,
+  LayoutWeaknessDrillRoute: LayoutWeaknessDrillRoute,
   LayoutTakeTestTestIdRoute: LayoutTakeTestTestIdRoute,
 }
 

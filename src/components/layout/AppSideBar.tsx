@@ -17,23 +17,36 @@ import {
   X,
   ChevronRight,
   UserCircle,
+  Zap,
+  Target,
+  Layers,
+  Gift,
+  Users,
+  Radio,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { authApi } from "@/lib/api";
 import { adaptUser } from "@/lib/interfaces";
+import { useLanguage } from "@/lib/context/LanguageContext";
 import Cookies from "js-cookie";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard",    path: "/dashboard" },
-  { icon: FileText,        label: "Mock Tests",   path: "/mock-tests" },
-  { icon: BookOpen,        label: "PYQ Bank",     path: "/pyq" },
-  { icon: Bell,            label: "Notifications",path: "/notifications" },
-  { icon: Calendar,        label: "Study Planner",path: "/planner" },
-  { icon: ShieldCheck,     label: "SC/ST/OBC Guide", path: "/reservation" },
-  { icon: BarChart2,       label: "Analytics",    path: "/analytics" },
-  { icon: Trophy,          label: "Leaderboard",  path: "/leaderboard" },
-  { icon: CreditCard,      label: "Subscription", path: "/subscription" },
+  { icon: LayoutDashboard, label: "Dashboard",        path: "/dashboard" },
+  { icon: FileText,        label: "Mock Tests",       path: "/mock-tests" },
+  { icon: Zap,             label: "Daily Challenge",  path: "/daily-challenge" },
+  { icon: BookOpen,        label: "PYQ Bank",         path: "/pyq" },
+  { icon: Layers,          label: "Flashcards",       path: "/flashcards" },
+  { icon: Target,          label: "Weakness Drill",   path: "/weakness-drill" },
+  { icon: Radio,           label: "Live Events",      path: "/events" },
+  { icon: Users,           label: "Study Squads",     path: "/squads" },
+  { icon: Bell,            label: "Notifications",    path: "/notifications" },
+  { icon: Calendar,        label: "Study Planner",    path: "/planner" },
+  { icon: ShieldCheck,     label: "SC/ST/OBC Guide",  path: "/reservation" },
+  { icon: BarChart2,       label: "Analytics",        path: "/analytics" },
+  { icon: Trophy,          label: "Leaderboard",      path: "/leaderboard" },
+  { icon: Gift,            label: "Refer & Earn",     path: "/referral" },
+  { icon: CreditCard,      label: "Subscription",     path: "/subscription" },
 ];
 
 const adminItems = [
@@ -44,6 +57,7 @@ export function AppSideBar() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const { lang, toggle: toggleLang } = useLanguage();
 
   const { data: apiUser } = useQuery({
     queryKey: ["me"],
@@ -153,8 +167,36 @@ export function AppSideBar() {
         ))}
       </nav>
 
+      {/* Free Trial Banner */}
+      {!collapsed && user?.subscriptionPlan === "free" && (
+        <div className="mx-3 mb-2 bg-yellow-400/20 border border-yellow-400/30 rounded-xl p-3">
+          <div className="text-yellow-200 text-xs font-bold mb-0.5">Free Plan</div>
+          <div className="text-yellow-100/80 text-[10px] leading-tight mb-2">
+            Upgrade to unlock unlimited tests, flashcards & analytics
+          </div>
+          <Link
+            to="/subscription"
+            onClick={() => setMobileOpen(false)}
+            className="block w-full text-center bg-yellow-400 hover:bg-yellow-300 text-yellow-900 text-[11px] font-bold py-1.5 rounded-lg transition-colors"
+          >
+            Upgrade Now →
+          </Link>
+        </div>
+      )}
+
       {/* Bottom */}
       <div className="px-2 pb-3 border-t border-white/10 pt-3 space-y-0.5">
+        <button
+          onClick={toggleLang}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-200 hover:bg-white/10 hover:text-white transition-all duration-150",
+            collapsed ? "justify-center" : ""
+          )}
+          title="Toggle Hindi / English"
+        >
+          <span className="text-base leading-none shrink-0">{lang === "hi" ? "A" : "अ"}</span>
+          {!collapsed && <span>{lang === "hi" ? "Switch to English" : "हिंदी में पढ़ें"}</span>}
+        </button>
         <button
           onClick={handleLogout}
           className={cn(
@@ -173,7 +215,7 @@ export function AppSideBar() {
     <div className="flex h-screen bg-gray-50">
       {/* Desktop Sidebar */}
       <aside className={cn(
-        "hidden md:flex flex-col bg-gradient-to-b from-[#1e3a8a] to-[#1a56db] transition-all duration-300 shadow-xl flex-shrink-0",
+        "hidden md:flex flex-col bg-gradient-to-b from-[#1e3a8a] to-[#1a56db] transition-all duration-300 shadow-xl",
         collapsed ? "w-16" : "w-60"
       )}>
         {/* Collapse Toggle */}
