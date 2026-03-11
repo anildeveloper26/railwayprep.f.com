@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Train, Loader2 } from "lucide-react";
 import Cookies from "js-cookie";
+import { authApi } from "@/lib/api";
 
 const EXAMS = ["RRB NTPC", "RRB Group D", "RRB JE", "RRB ALP", "Technician"];
 const CATEGORIES = ["UR", "SC", "ST", "OBC", "EWS"];
@@ -9,17 +10,31 @@ const CATEGORIES = ["UR", "SC", "ST", "OBC", "EWS"];
 export function RegisterPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
-    name: "", email: "", phone: "", password: "",
+    name: "", email: "", password: "",
     category: "SC", targetExam: "RRB NTPC",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1000));
-    Cookies.set("rrb_token", "mock_token_123", { expires: 7 });
-    navigate({ to: "/dashboard" });
+    try {
+      const res = await authApi.register({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        category: form.category,
+        targetExam: form.targetExam,
+      });
+      Cookies.set("rrb_token", res.accessToken, { expires: 7 });
+      navigate({ to: "/dashboard" });
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -39,7 +54,7 @@ export function RegisterPage() {
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
                 <input
-                  type="text" placeholder="Anil Kumar" required
+                  type="text" placeholder="Your name" required
                   value={form.name}
                   onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
@@ -48,18 +63,9 @@ export function RegisterPage() {
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
                 <input
-                  type="email" placeholder="anil@example.com" required
+                  type="email" placeholder="you@example.com" required
                   value={form.email}
                   onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
-                <input
-                  type="tel" placeholder="9876543210" required
-                  value={form.phone}
-                  onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 />
               </div>
@@ -73,7 +79,7 @@ export function RegisterPage() {
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-              <div className="col-span-2">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Target Exam</label>
                 <select
                   value={form.targetExam}
@@ -94,11 +100,16 @@ export function RegisterPage() {
               </div>
             </div>
 
-            {/* Category Benefit Note */}
             {form.category !== "UR" && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-xs text-yellow-800">
                 <span className="font-semibold">{form.category} category benefit:</span> Age relaxation,
                 fee waiver & lower cutoff. Check the SC/ST/OBC Guide section for details.
+              </div>
+            )}
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-2.5">
+                {error}
               </div>
             )}
 

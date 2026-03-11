@@ -19,7 +19,9 @@ import {
   UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CURRENT_USER } from "@/lib/constants/mockData";
+import { useQuery } from "@tanstack/react-query";
+import { authApi } from "@/lib/api";
+import { adaptUser } from "@/lib/interfaces";
 import Cookies from "js-cookie";
 
 const navItems = [
@@ -42,6 +44,13 @@ export function AppSideBar() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+
+  const { data: apiUser } = useQuery({
+    queryKey: ["me"],
+    queryFn: authApi.getMe,
+    retry: false,
+  });
+  const user = apiUser ? adaptUser(apiUser) : null;
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -76,12 +85,9 @@ export function AppSideBar() {
               <UserCircle className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-white text-xs font-semibold truncate">{CURRENT_USER.name}</div>
+              <div className="text-white text-xs font-semibold truncate">{user?.name ?? "..."}</div>
               <div className="flex items-center gap-1.5 mt-0.5">
-                {/* <span className="bg-yellow-400 text-yellow-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                  {CURRENT_USER.category}
-                </span> */}
-                <span className="text-blue-200 text-[10px] truncate">{CURRENT_USER.targetExam}</span>
+                <span className="text-blue-200 text-[10px] truncate">{user?.targetExam ?? ""}</span>
               </div>
             </div>
           </div>

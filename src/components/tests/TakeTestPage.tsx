@@ -2,9 +2,12 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "@tanstack/react-router";
 import {
   Clock, ChevronLeft, ChevronRight, Flag, CheckCircle2,
-  AlertTriangle, SkipForward, Send,
+  AlertTriangle, SkipForward, Send, Loader2,
 } from "lucide-react";
-import { MOCK_TESTS, SAMPLE_QUESTIONS } from "@/lib/constants/mockData";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { testsApi, questionsApi, attemptsApi } from "@/lib/api";
+import { adaptTest, adaptQuestion } from "@/lib/interfaces";
+import type { MockTest, Question } from "@/lib/interfaces";
 import { cn, formatTime } from "@/lib/utils";
 
 type Answer = number | null;
@@ -13,27 +16,67 @@ export function TakeTestPage() {
   const { testId } = useParams({ from: "/_layout/take-test/$testId" });
   const navigate = useNavigate();
 
-  const test = MOCK_TESTS.find(t => t.id === testId) ?? MOCK_TESTS[0];
-  const questions = [...SAMPLE_QUESTIONS, ...SAMPLE_QUESTIONS].slice(0, Math.min(test.totalQuestions, 10));
+  const { data: apiTest, isLoading: testLoading } = useQuery({
+    queryKey: ["test", testId],
+    queryFn: () => testsApi.getById(testId),
+  });
+
+  const test = apiTest ? adaptTest(apiTest) : null;
+
+  const { data: questionsData, isLoading: questionsLoading } = useQuery({
+    queryKey: ["questions", testId],
+    queryFn: () => questionsApi.list({ limit: Math.min(test?.totalQuestions ?? 10, 50) }),
+    enabled: !!test,
+  });
+
+  const rawQuestions = Array.isArray(questionsData)
+    ? questionsData
+    : (questionsData as { questions?: unknown[] } | undefined)?.questions ?? [];
+  const questions = (rawQuestions as Parameters<typeof adaptQuestion>[0][]).map(adaptQuestion);
+
+  const submitMutation = useMutation({
+    mutationFn: (data: Parameters<typeof attemptsApi.submit>[1]) =>
+      attemptsApi.submit(testId, data),
+  });
 
   const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState<Answer[]>(Array(questions.length).fill(null));
-  const [timeLeft, setTimeLeft] = useState(test.duration * 60);
+  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [timeLeft, setTimeLeft] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [flagged, setFlagged] = useState<boolean[]>(Array(questions.length).fill(false));
-
-  const handleSubmit = useCallback(() => {
-    setSubmitted(true);
-    setShowConfirm(false);
-  }, []);
+  const [flagged, setFlagged] = useState<boolean[]>([]);
 
   useEffect(() => {
-    if (submitted) return;
-    if (timeLeft <= 0) { handleSubmit(); return; }
+    if (test && questions.length > 0 && answers.length === 0) {
+      setAnswers(Array(questions.length).fill(null));
+      setFlagged(Array(questions.length).fill(false));
+      setTimeLeft(test.duration * 60);
+    }
+  }, [test, questions.length, answers.length]);
+
+  const handleSubmit = useCallback(async () => {
+    if (!test || questions.length === 0) return;
+    setSubmitted(true);
+    setShowConfirm(false);
+
+    const optionKeys = ["A", "B", "C", "D", "E"];
+    const submitAnswers = questions.map((q, i) => ({
+      questionId: q.id,
+      selectedOption: answers[i] !== null ? (optionKeys[answers[i]!] ?? "A") : "",
+      timeTaken: 30,
+      isFlagged: flagged[i] ?? false,
+    })).filter(a => a.selectedOption !== "");
+
+    const totalTime = test.duration * 60 - timeLeft;
+    await submitMutation.mutateAsync({ timeTaken: totalTime, answers: submitAnswers }).catch(() => {});
+  }, [test, questions, answers, flagged, timeLeft, submitMutation]);
+
+  useEffect(() => {
+    if (submitted || timeLeft <= 0 || answers.length === 0) return;
+    if (timeLeft === 0) { handleSubmit(); return; }
     const t = setInterval(() => setTimeLeft(p => p - 1), 1000);
     return () => clearInterval(t);
-  }, [timeLeft, submitted, handleSubmit]);
+  }, [timeLeft, submitted, handleSubmit, answers.length]);
 
   const selectAnswer = (idx: number) => {
     if (submitted) return;
@@ -52,11 +95,36 @@ export function TakeTestPage() {
     });
   };
 
-  if (submitted) return <ResultView test={test} questions={questions} answers={answers} totalTime={test.duration * 60 - timeLeft} navigate={navigate} />;
+  if (testLoading || questionsLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <Loader2 size={36} className="animate-spin text-blue-600 mx-auto mb-3" />
+          <p className="text-gray-500 text-sm">Loading test...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!test || questions.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center text-gray-500">
+          <p className="text-lg font-semibold">Test not found</p>
+          <button onClick={() => navigate({ to: "/mock-tests" })} className="mt-3 text-blue-600 text-sm hover:underline">
+            Back to tests
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (submitted) {
+    return <ResultView test={test} questions={questions} answers={answers} totalTime={test.duration * 60 - timeLeft} navigate={navigate} />;
+  }
 
   const q = questions[current];
   const answered = answers.filter(a => a !== null).length;
-  const skipped = answers.filter(a => a === null).length;
   const isUrgent = timeLeft < 300;
 
   return (
@@ -71,11 +139,11 @@ export function TakeTestPage() {
           <div className="flex items-center gap-2 text-sm">
             <span className="text-green-600 font-medium">{answered} answered</span>
             <span className="text-gray-400">·</span>
-            <span className="text-gray-500">{skipped} skipped</span>
+            <span className="text-gray-500">{questions.length - answered} skipped</span>
           </div>
           <div className={cn(
             "flex items-center gap-1.5 font-mono font-bold text-lg px-3 py-1 rounded-xl",
-            isUrgent ? "bg-red-50 text-red-600 timer-urgent" : "bg-blue-50 text-blue-700"
+            isUrgent ? "bg-red-50 text-red-600" : "bg-blue-50 text-blue-700"
           )}>
             <Clock size={16} />
             {formatTime(timeLeft)}
@@ -92,7 +160,6 @@ export function TakeTestPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Question Panel */}
         <div className="flex-1 overflow-y-auto p-5">
-          {/* Question */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
             <div className="flex items-start justify-between mb-4">
               <div>
@@ -116,7 +183,6 @@ export function TakeTestPage() {
                 <Flag size={12} /> {flagged[current] ? "Flagged" : "Flag"}
               </button>
             </div>
-
             <p className="text-gray-900 font-medium text-base leading-relaxed">{q?.questionText}</p>
           </div>
 
@@ -127,7 +193,7 @@ export function TakeTestPage() {
                 key={i}
                 onClick={() => selectAnswer(i)}
                 className={cn(
-                  "w-full text-left p-4 rounded-xl border-2 transition-all option-card flex items-start gap-3",
+                  "w-full text-left p-4 rounded-xl border-2 transition-all flex items-start gap-3",
                   answers[current] === i
                     ? "border-blue-500 bg-blue-50 shadow-md"
                     : "border-gray-100 bg-white hover:border-blue-200 hover:bg-blue-50/30 shadow-sm"
@@ -180,7 +246,7 @@ export function TakeTestPage() {
           </div>
         </div>
 
-        {/* Question Navigator Panel */}
+        {/* Question Navigator */}
         <div className="w-56 bg-white border-l border-gray-100 p-4 overflow-y-auto">
           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Question Navigator</h3>
           <div className="grid grid-cols-5 gap-1.5">
@@ -248,14 +314,14 @@ export function TakeTestPage() {
 }
 
 function ResultView({ test, questions, answers, totalTime, navigate }: {
-  test: (typeof MOCK_TESTS)[0];
-  questions: typeof SAMPLE_QUESTIONS;
+  test: MockTest;
+  questions: Question[];
   answers: Answer[];
   totalTime: number;
   navigate: ReturnType<typeof useNavigate>;
 }) {
-  const correct = answers.filter((a, i) => a === questions[i].correctAnswer).length;
-  const wrong = answers.filter((a, i) => a !== null && a !== questions[i].correctAnswer).length;
+  const correct = answers.filter((a, i) => a === questions[i]?.correctAnswer).length;
+  const wrong = answers.filter((a, i) => a !== null && a !== questions[i]?.correctAnswer).length;
   const skipped = answers.filter(a => a === null).length;
   const score = correct - wrong * (test.negativeMarkValue ?? 0);
   const percentage = Math.round((score / questions.length) * 100);
@@ -268,7 +334,6 @@ function ResultView({ test, questions, answers, totalTime, navigate }: {
   return (
     <div className="min-h-screen bg-gray-50 p-5">
       <div className="max-w-2xl mx-auto space-y-4">
-        {/* Score Card */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-center">
           <CheckCircle2 size={40} className="text-green-500 mx-auto mb-3" />
           <h2 className="text-xl font-bold text-gray-900 mb-1">Test Completed!</h2>
@@ -294,7 +359,6 @@ function ResultView({ test, questions, answers, totalTime, navigate }: {
           </div>
         </div>
 
-        {/* Answer Review */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <h3 className="font-semibold text-gray-800 mb-4">Answer Review</h3>
           <div className="space-y-4">

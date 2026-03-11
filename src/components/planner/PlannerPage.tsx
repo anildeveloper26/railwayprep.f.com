@@ -1,52 +1,75 @@
 import { useState } from "react";
-import { Calendar, CheckCircle2, Circle, Zap, Target, Clock } from "lucide-react";
-import { CURRENT_USER } from "@/lib/constants/mockData";
+import { Calendar, CheckCircle2, Circle, Zap, Target, Clock, Plus, Trash2, Loader2 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { plannerApi, authApi } from "@/lib/api";
+import { adaptUser } from "@/lib/interfaces";
+import type { ApiPlannerTask } from "@/lib/interfaces";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const EXAMS = ["RRB NTPC", "RRB Group D", "RRB JE", "RRB ALP"];
-
-const GENERATED_PLAN = {
-  dailyTasks: [
-    { subject: "Mathematics",   topic: "Percentage & Profit-Loss",  duration: 45, completed: true,  date: "Today" },
-    { subject: "Reasoning",     topic: "Number Series",             duration: 30, completed: true,  date: "Today" },
-    { subject: "GK",            topic: "Indian Railways History",   duration: 30, completed: false, date: "Today" },
-    { subject: "Mock Practice", topic: "30-Question Sectional Test",duration: 40, completed: false, date: "Today" },
-    { subject: "Revision",      topic: "Yesterday's weak topics",   duration: 20, completed: false, date: "Today" },
-  ],
-  weeklyTargets: [
-    { week: 1,  topics: ["Percentage", "SI & CI", "Number Series", "Analogies"],       mockTests: 2,  completed: true  },
-    { week: 2,  topics: ["Profit & Loss", "Ratio & Proportion", "Coding-Decoding", "Blood Relations"], mockTests: 3, completed: true },
-    { week: 3,  topics: ["Time & Work", "Speed Distance", "Direction Sense", "Indian History"], mockTests: 3, completed: false },
-    { week: 4,  topics: ["Geometry", "Mensuration", "Seating Arrangement", "Indian Geography"], mockTests: 4, completed: false },
-    { week: 5,  topics: ["Revision Week 1-4", "Full Mock Tests", "Weak Topic Focus"],  mockTests: 5,  completed: false },
-  ],
-  progress: 42,
-  daysRemaining: 67,
-  topicsCompleted: 14,
-  totalTopics: 34,
-};
+const SUBJECTS = ["Mathematics", "Reasoning", "General Knowledge", "Technical"];
+const PRIORITIES = ["High", "Medium", "Low"] as const;
 
 export function PlannerPage() {
-  const [targetExam, setTargetExam] = useState(CURRENT_USER.targetExam);
-  const [targetDate, setTargetDate] = useState("");
-  const [generated, setGenerated] = useState(true);
-  const [generating, setGenerating] = useState(false);
-  const [tasks, setTasks] = useState(GENERATED_PLAN.dailyTasks);
+  const queryClient = useQueryClient();
+  const { data: apiUser } = useQuery({ queryKey: ["me"], queryFn: authApi.getMe, retry: false });
+  const user = apiUser ? adaptUser(apiUser) : null;
 
-  const todayCompleted = tasks.filter(t => t.completed).length;
-  const todayTotal = tasks.length;
+  const { data: tasks, isLoading: tasksLoading } = useQuery({
+    queryKey: ["planner-tasks"],
+    queryFn: plannerApi.getTasks,
+  });
 
-  const handleGenerate = async () => {
-    if (!targetDate) return;
-    setGenerating(true);
-    await new Promise(r => setTimeout(r, 1200));
-    setGenerated(true);
-    setGenerating(false);
+  const { data: stats } = useQuery({
+    queryKey: ["planner-stats"],
+    queryFn: plannerApi.getStats,
+  });
+
+  const [targetExam, setTargetExam] = useState(user?.targetExam ?? "RRB NTPC");
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newTask, setNewTask] = useState({
+    title: "", subject: "Mathematics", topic: "",
+    priority: "High" as const, targetDate: "", estimatedMinutes: 60, notes: "",
+  });
+
+  const taskList: ApiPlannerTask[] = Array.isArray(tasks) ? tasks : [];
+  const todayCompleted = taskList.filter(t => t.isCompleted || t.completed).length;
+  const totalTasks = taskList.length;
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof plannerApi.updateTask>[1] }) =>
+      plannerApi.updateTask(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["planner-tasks"] }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: plannerApi.deleteTask,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["planner-tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["planner-stats"] });
+      toast.success("Task deleted");
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: plannerApi.createTask,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["planner-tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["planner-stats"] });
+      setShowAddForm(false);
+      setNewTask({ title: "", subject: "Mathematics", topic: "", priority: "High", targetDate: "", estimatedMinutes: 60, notes: "" });
+      toast.success("Task created!");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const toggleTask = (task: ApiPlannerTask) => {
+    updateMutation.mutate({ id: task._id, data: { isCompleted: !(task.isCompleted || task.completed) } });
   };
 
-  const toggleTask = (idx: number) => {
-    setTasks(prev => prev.map((t, i) => i === idx ? { ...t, completed: !t.completed } : t));
-  };
+  const progress = stats?.progress ?? (totalTasks > 0 ? Math.round((todayCompleted / totalTasks) * 100) : 0);
+  const daysRemaining = stats?.daysRemaining;
 
   return (
     <div className="p-5 max-w-5xl mx-auto space-y-5">
@@ -55,16 +78,16 @@ export function PlannerPage() {
         <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
           <Calendar size={20} className="text-blue-600" /> Study Planner
         </h1>
-        <p className="text-gray-500 text-sm mt-0.5">AI-powered personalized study plans for your target exam</p>
+        <p className="text-gray-500 text-sm mt-0.5">Manage your study tasks and track your preparation</p>
       </div>
 
-      {/* Plan Generator */}
+      {/* Plan Controls */}
       <div className="bg-gradient-to-r from-[#1e3a8a] to-[#1a56db] rounded-2xl p-5 text-white">
         <div className="flex items-center gap-2 mb-4">
           <Zap size={18} className="text-yellow-300" />
-          <h2 className="font-semibold">Generate Your Study Plan</h2>
+          <h2 className="font-semibold">Study Plan</h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="text-blue-200 text-xs mb-1.5 block font-medium">Target Exam</label>
             <select
@@ -75,147 +98,191 @@ export function PlannerPage() {
               {EXAMS.map(e => <option key={e} value={e} className="text-gray-800">{e}</option>)}
             </select>
           </div>
-          <div>
-            <label className="text-blue-200 text-xs mb-1.5 block font-medium">Target Date (Exam)</label>
-            <input
-              type="date"
-              value={targetDate}
-              onChange={e => setTargetDate(e.target.value)}
-              className="w-full bg-white/15 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/30 [color-scheme:dark]"
-            />
-          </div>
           <div className="flex items-end">
             <button
-              onClick={handleGenerate}
-              disabled={generating || !targetDate}
-              className="w-full bg-yellow-400 text-yellow-900 font-bold py-2.5 rounded-xl hover:bg-yellow-300 transition disabled:opacity-60 flex items-center justify-center gap-2"
+              onClick={() => setShowAddForm(true)}
+              className="w-full bg-yellow-400 text-yellow-900 font-bold py-2.5 rounded-xl hover:bg-yellow-300 transition flex items-center justify-center gap-2"
             >
-              {generating ? (
-                <><span className="w-4 h-4 border-2 border-yellow-900 border-t-transparent rounded-full animate-spin" /> Generating...</>
-              ) : (
-                <><Zap size={16} /> Generate Plan</>
-              )}
+              <Plus size={16} /> Add New Task
             </button>
           </div>
         </div>
       </div>
 
-      {generated && (
-        <>
-          {/* Overall Progress */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { icon: Target, label: "Overall Progress", value: `${GENERATED_PLAN.progress}%`,       color: "text-blue-600"  },
-              { icon: Clock,  label: "Days Remaining",   value: GENERATED_PLAN.daysRemaining,         color: "text-orange-600" },
-              { icon: CheckCircle2, label: "Topics Done", value: `${GENERATED_PLAN.topicsCompleted}/${GENERATED_PLAN.totalTopics}`, color: "text-green-600" },
-              { icon: Zap,    label: "Today's Progress", value: `${todayCompleted}/${todayTotal}`,    color: "text-purple-600" },
-            ].map(s => (
-              <div key={s.label} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <s.icon size={18} className={cn("mb-2", s.color)} />
-                <div className={cn("text-2xl font-bold", s.color)}>{s.value}</div>
-                <div className="text-gray-400 text-xs mt-0.5">{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Progress Bar */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-700">Study Plan Progress</span>
-              <span className="text-blue-600 font-bold text-sm">{GENERATED_PLAN.progress}%</span>
+      {/* Add Task Form */}
+      {showAddForm && (
+        <div className="bg-white rounded-xl border border-blue-200 shadow-sm p-5">
+          <h3 className="font-semibold text-gray-800 mb-4">New Task</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="sm:col-span-2">
+              <label className="text-xs font-medium text-gray-600 mb-1 block">Task Title</label>
+              <input
+                value={newTask.title}
+                onChange={e => setNewTask(p => ({ ...p, title: e.target.value }))}
+                placeholder="e.g. Revise Percentage"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
-            <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transition-all duration-500"
-                style={{ width: `${GENERATED_PLAN.progress}%` }}
+            <div>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">Subject</label>
+              <select
+                value={newTask.subject}
+                onChange={e => setNewTask(p => ({ ...p, subject: e.target.value }))}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              >
+                {SUBJECTS.map(s => <option key={s}>{s}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">Topic</label>
+              <input
+                value={newTask.topic}
+                onChange={e => setNewTask(p => ({ ...p, topic: e.target.value }))}
+                placeholder="e.g. Number System"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">Priority</label>
+              <select
+                value={newTask.priority}
+                onChange={e => setNewTask(p => ({ ...p, priority: e.target.value as typeof PRIORITIES[number] }))}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              >
+                {PRIORITIES.map(p => <option key={p}>{p}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">Target Date</label>
+              <input
+                type="date"
+                value={newTask.targetDate}
+                onChange={e => setNewTask(p => ({ ...p, targetDate: e.target.value }))}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">Duration (minutes)</label>
+              <input
+                type="number" min={5} max={240}
+                value={newTask.estimatedMinutes}
+                onChange={e => setNewTask(p => ({ ...p, estimatedMinutes: parseInt(e.target.value) || 60 }))}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
-
-          {/* Today's Tasks */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
-              <h2 className="font-semibold text-gray-800 flex items-center gap-2">
-                📅 Today's Tasks
-              </h2>
-              <span className={cn(
-                "text-xs font-semibold px-2.5 py-1 rounded-full",
-                todayCompleted === todayTotal ? "bg-green-100 text-green-700" : "bg-blue-50 text-blue-700"
-              )}>
-                {todayCompleted}/{todayTotal} done
-              </span>
-            </div>
-            <div className="divide-y divide-gray-50">
-              {tasks.map((task, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "flex items-center gap-4 px-5 py-3.5 cursor-pointer hover:bg-gray-50 transition",
-                    task.completed ? "opacity-70" : ""
-                  )}
-                  onClick={() => toggleTask(i)}
-                >
-                  {task.completed
-                    ? <CheckCircle2 size={20} className="text-green-500 flex-shrink-0" />
-                    : <Circle size={20} className="text-gray-300 flex-shrink-0" />
-                  }
-                  <div className="flex-1">
-                    <div className={cn("text-sm font-medium", task.completed ? "line-through text-gray-400" : "text-gray-800")}>
-                      {task.topic}
-                    </div>
-                    <div className="text-xs text-gray-400 mt-0.5">{task.subject}</div>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-gray-400 text-xs">
-                    <Clock size={12} /> {task.duration} min
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={() => setShowAddForm(false)}
+              className="flex-1 border border-gray-200 py-2 rounded-xl text-sm font-medium hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => createMutation.mutate(newTask)}
+              disabled={createMutation.isPending || !newTask.title || !newTask.topic}
+              className="flex-1 bg-blue-600 text-white py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-60 transition flex items-center justify-center gap-2"
+            >
+              {createMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : null}
+              Create Task
+            </button>
           </div>
-
-          {/* Weekly Targets */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
-            <div className="px-5 py-4 border-b border-gray-50">
-              <h2 className="font-semibold text-gray-800">📊 Weekly Targets — {targetExam}</h2>
-            </div>
-            <div className="divide-y divide-gray-50">
-              {GENERATED_PLAN.weeklyTargets.map(w => (
-                <div key={w.week} className={cn("px-5 py-4", w.completed ? "opacity-75" : "")}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className={cn(
-                        "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold",
-                        w.completed ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
-                      )}>
-                        W{w.week}
-                      </div>
-                      <span className={cn("text-sm font-medium", w.completed ? "text-gray-400" : "text-gray-800")}>
-                        Week {w.week}
-                        {w.completed ? " ✓" : ""}
-                      </span>
-                    </div>
-                    <span className="text-xs text-gray-400 bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-lg">
-                      {w.mockTests} mock tests
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 ml-9">
-                    {w.topics.map(topic => (
-                      <span key={topic} className={cn(
-                        "text-[11px] px-2.5 py-1 rounded-full border font-medium",
-                        w.completed
-                          ? "bg-green-50 border-green-200 text-green-700"
-                          : "bg-gray-50 border-gray-200 text-gray-600"
-                      )}>
-                        {topic}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
+        </div>
       )}
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { icon: Target,      label: "Progress",       value: `${progress}%`,                                          color: "text-blue-600" },
+          { icon: Clock,       label: "Days Remaining",  value: daysRemaining ?? "—",                                    color: "text-orange-600" },
+          { icon: CheckCircle2,label: "Completed",       value: `${stats?.completedTasks ?? todayCompleted}/${stats?.totalTasks ?? totalTasks}`, color: "text-green-600" },
+          { icon: Zap,         label: "Pending",         value: stats?.pendingTasks ?? (totalTasks - todayCompleted),    color: "text-purple-600" },
+        ].map(s => (
+          <div key={s.label} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+            <s.icon size={18} className={cn("mb-2", s.color)} />
+            <div className={cn("text-2xl font-bold", s.color)}>{s.value}</div>
+            <div className="text-gray-400 text-xs mt-0.5">{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Progress Bar */}
+      {totalTasks > 0 && (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm font-medium text-gray-700">Overall Progress</span>
+            <span className="text-blue-600 font-bold text-sm">{progress}%</span>
+          </div>
+          <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Tasks List */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
+          <h2 className="font-semibold text-gray-800 flex items-center gap-2">
+            📅 My Tasks
+          </h2>
+          <span className={cn(
+            "text-xs font-semibold px-2.5 py-1 rounded-full",
+            todayCompleted === totalTasks && totalTasks > 0 ? "bg-green-100 text-green-700" : "bg-blue-50 text-blue-700"
+          )}>
+            {todayCompleted}/{totalTasks} done
+          </span>
+        </div>
+
+        {tasksLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <Loader2 size={24} className="animate-spin text-blue-600" />
+          </div>
+        ) : taskList.length === 0 ? (
+          <div className="text-center py-12 text-gray-400">
+            <Calendar size={36} className="mx-auto mb-3 opacity-30" />
+            <p className="text-sm">No tasks yet. Add your first task above!</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-50">
+            {taskList.map(task => {
+              const done = task.isCompleted || task.completed;
+              const priorityColor = task.priority === "High" ? "text-red-500 bg-red-50" : task.priority === "Medium" ? "text-yellow-600 bg-yellow-50" : "text-gray-500 bg-gray-50";
+              return (
+                <div key={task._id} className="flex items-center gap-4 px-5 py-3.5">
+                  <button onClick={() => toggleTask(task)} className="flex-shrink-0">
+                    {done
+                      ? <CheckCircle2 size={20} className="text-green-500" />
+                      : <Circle size={20} className="text-gray-300" />
+                    }
+                  </button>
+                  <div className="flex-1 min-w-0">
+                    <div className={cn("text-sm font-medium", done ? "line-through text-gray-400" : "text-gray-800")}>
+                      {task.title}
+                    </div>
+                    <div className="text-xs text-gray-400 mt-0.5">{task.subject} · {task.topic}</div>
+                  </div>
+                  <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0", priorityColor)}>
+                    {task.priority}
+                  </span>
+                  <div className="flex items-center gap-1.5 text-gray-400 text-xs flex-shrink-0">
+                    <Clock size={12} /> {task.estimatedMinutes}m
+                  </div>
+                  <button
+                    onClick={() => deleteMutation.mutate(task._id)}
+                    disabled={deleteMutation.isPending}
+                    className="p-1.5 hover:bg-red-50 rounded-lg text-red-400 transition flex-shrink-0"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

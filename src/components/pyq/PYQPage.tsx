@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { BookOpen, ChevronDown, ChevronUp, Search } from "lucide-react";
-import { SAMPLE_QUESTIONS, PYQ_TOPICS } from "@/lib/constants/mockData";
+import { BookOpen, ChevronDown, ChevronUp, Search, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { questionsApi } from "@/lib/api";
+import { adaptQuestion } from "@/lib/interfaces";
+import type { ApiPYQTopic } from "@/lib/interfaces";
 import { cn, getDifficultyColor } from "@/lib/utils";
 
 const SUBJECTS = [
-  { key: "all",       label: "All Subjects",   color: "bg-blue-600" },
-  { key: "maths",     label: "Mathematics",    color: "bg-green-600" },
-  { key: "reasoning", label: "Reasoning",      color: "bg-purple-600" },
+  { key: "all",       label: "All Subjects",      color: "bg-blue-600" },
+  { key: "maths",     label: "Mathematics",       color: "bg-green-600" },
+  { key: "reasoning", label: "Reasoning",         color: "bg-purple-600" },
   { key: "gk",        label: "General Knowledge", color: "bg-orange-600" },
-  { key: "technical", label: "Technical",      color: "bg-red-600" },
+  { key: "technical", label: "Technical",         color: "bg-red-600" },
 ];
 
 const YEARS = ["All", "2022", "2021", "2020", "2019", "2018"];
@@ -18,9 +21,31 @@ export function PYQPage() {
   const [year, setYear] = useState("All");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
-  const filtered = SAMPLE_QUESTIONS.filter(q => {
-    if (subject !== "all" && q.subject !== subject) return false;
+  const { data: questionsData, isLoading: questionsLoading } = useQuery({
+    queryKey: ["pyq-questions", subject, year, page],
+    queryFn: () => questionsApi.list({
+      subject: subject !== "all" ? subject : undefined,
+      isPYQ: true,
+      page,
+      limit: 20,
+    }),
+  });
+
+  const { data: topicsData, isLoading: topicsLoading } = useQuery({
+    queryKey: ["pyq-topics"],
+    queryFn: questionsApi.getPYQTopics,
+  });
+
+  const rawQuestions = Array.isArray(questionsData)
+    ? questionsData
+    : (questionsData as { questions?: unknown[] } | undefined)?.questions ?? [];
+  const questions = (rawQuestions as Parameters<typeof adaptQuestion>[0][]).map(adaptQuestion);
+
+  const topics: ApiPYQTopic[] = Array.isArray(topicsData) ? topicsData : [];
+
+  const filtered = questions.filter(q => {
     if (year !== "All" && q.year !== parseInt(year)) return false;
     if (search && !q.questionText.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
@@ -29,9 +54,11 @@ export function PYQPage() {
   const subjectCounts = SUBJECTS.map(s => ({
     ...s,
     count: s.key === "all"
-      ? SAMPLE_QUESTIONS.length
-      : SAMPLE_QUESTIONS.filter(q => q.subject === s.key).length,
+      ? questions.length
+      : questions.filter(q => q.subject === s.key).length,
   }));
+
+  const visibleTopics = topics.filter(t => subject === "all" || t.subject.toLowerCase() === subject).slice(0, 10);
 
   return (
     <div className="p-5 max-w-6xl mx-auto space-y-5">
@@ -40,7 +67,7 @@ export function PYQPage() {
         <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
           <BookOpen size={20} className="text-blue-600" /> PYQ Question Bank
         </h1>
-        <p className="text-gray-500 text-sm mt-0.5">5,000+ previous year questions with explanations</p>
+        <p className="text-gray-500 text-sm mt-0.5">Previous year questions with explanations</p>
       </div>
 
       {/* Subject Filter Cards */}
@@ -48,7 +75,7 @@ export function PYQPage() {
         {subjectCounts.map(s => (
           <button
             key={s.key}
-            onClick={() => setSubject(s.key)}
+            onClick={() => { setSubject(s.key); setPage(1); }}
             className={cn(
               "rounded-xl p-3 text-left border-2 transition-all",
               subject === s.key
@@ -62,7 +89,7 @@ export function PYQPage() {
             <div className={cn("text-xs font-semibold", subject === s.key ? "text-blue-700" : "text-gray-700")}>
               {s.label}
             </div>
-            <div className="text-[11px] text-gray-400 mt-0.5">{s.count} questions</div>
+            <div className="text-[11px] text-gray-400 mt-0.5">{s.count} loaded</div>
           </button>
         ))}
       </div>
@@ -97,16 +124,14 @@ export function PYQPage() {
       </div>
 
       {/* Hot Topics */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-        <h3 className="font-semibold text-gray-800 text-sm mb-3">
-          🔥 Most Tested Topics
-          {subject !== "all" && ` · ${SUBJECTS.find(s => s.key === subject)?.label}`}
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {PYQ_TOPICS
-            .filter(t => subject === "all" || t.subject === subject)
-            .slice(0, 10)
-            .map(t => (
+      {!topicsLoading && visibleTopics.length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <h3 className="font-semibold text-gray-800 text-sm mb-3">
+            🔥 Most Tested Topics
+            {subject !== "all" && ` · ${SUBJECTS.find(s => s.key === subject)?.label}`}
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {visibleTopics.map(t => (
               <button
                 key={t.topic}
                 className="flex items-center gap-1.5 bg-gray-50 hover:bg-blue-50 border border-gray-100 hover:border-blue-200 text-gray-600 hover:text-blue-700 text-xs px-3 py-1.5 rounded-full transition"
@@ -114,86 +139,112 @@ export function PYQPage() {
                 {t.topic} <span className="text-gray-400">({t.count})</span>
               </button>
             ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Questions */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-gray-700 text-sm">{filtered.length} questions found</h3>
+          <h3 className="font-semibold text-gray-700 text-sm">{filtered.length} questions</h3>
         </div>
 
-        {filtered.map((q, idx) => (
-          <div
-            key={q.id}
-            className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden"
-          >
-            <button
-              onClick={() => setExpanded(expanded === q.id ? null : q.id)}
-              className="w-full text-left p-4 flex items-start gap-3"
-            >
-              <span className="text-xs font-bold text-gray-400 min-w-[24px] mt-0.5">
-                {String(idx + 1).padStart(2, "0")}
-              </span>
-              <div className="flex-1">
-                <div className="flex flex-wrap gap-1.5 mb-2">
-                  <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium", getDifficultyColor(q.difficulty))}>
-                    {q.difficulty}
+        {questionsLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 size={28} className="animate-spin text-blue-600" />
+          </div>
+        ) : (
+          <>
+            {filtered.map((q, idx) => (
+              <div key={q.id} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                <button
+                  onClick={() => setExpanded(expanded === q.id ? null : q.id)}
+                  className="w-full text-left p-4 flex items-start gap-3"
+                >
+                  <span className="text-xs font-bold text-gray-400 min-w-[24px] mt-0.5">
+                    {String(idx + 1).padStart(2, "0")}
                   </span>
-                  <span className="bg-blue-50 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-medium capitalize">
-                    {q.subject}
-                  </span>
-                  <span className="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full font-medium">
-                    {q.topic}
-                  </span>
-                  <span className="bg-purple-50 text-purple-700 text-[10px] px-2 py-0.5 rounded-full font-medium">
-                    {q.year}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-800 font-medium leading-relaxed">{q.questionText}</p>
-              </div>
-              <div className="ml-2 flex-shrink-0 text-gray-400">
-                {expanded === q.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-              </div>
-            </button>
-
-            {expanded === q.id && (
-              <div className="border-t border-gray-50 p-4 bg-gray-50">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
-                  {q.options.map((opt, i) => (
-                    <div
-                      key={i}
-                      className={cn(
-                        "flex items-start gap-2 p-3 rounded-xl text-sm border",
-                        i === q.correctAnswer
-                          ? "bg-green-50 border-green-300 text-green-800"
-                          : "bg-white border-gray-200 text-gray-600"
-                      )}
-                    >
-                      <span className={cn(
-                        "w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0",
-                        i === q.correctAnswer ? "bg-green-500 text-white" : "bg-gray-100 text-gray-500"
-                      )}>
-                        {String.fromCharCode(65 + i)}
+                  <div className="flex-1">
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium", getDifficultyColor(q.difficulty))}>
+                        {q.difficulty}
                       </span>
-                      {opt}
+                      <span className="bg-blue-50 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-medium capitalize">
+                        {q.subject}
+                      </span>
+                      <span className="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full font-medium">
+                        {q.topic}
+                      </span>
+                      <span className="bg-purple-50 text-purple-700 text-[10px] px-2 py-0.5 rounded-full font-medium">
+                        {q.year}
+                      </span>
                     </div>
-                  ))}
-                </div>
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
-                  <div className="text-xs font-semibold text-blue-700 mb-1">💡 Explanation</div>
-                  <p className="text-sm text-blue-800">{q.explanation}</p>
-                </div>
+                    <p className="text-sm text-gray-800 font-medium leading-relaxed">{q.questionText}</p>
+                  </div>
+                  <div className="ml-2 flex-shrink-0 text-gray-400">
+                    {expanded === q.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </div>
+                </button>
+
+                {expanded === q.id && (
+                  <div className="border-t border-gray-50 p-4 bg-gray-50">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+                      {q.options.map((opt, i) => (
+                        <div
+                          key={i}
+                          className={cn(
+                            "flex items-start gap-2 p-3 rounded-xl text-sm border",
+                            i === q.correctAnswer
+                              ? "bg-green-50 border-green-300 text-green-800"
+                              : "bg-white border-gray-200 text-gray-600"
+                          )}
+                        >
+                          <span className={cn(
+                            "w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0",
+                            i === q.correctAnswer ? "bg-green-500 text-white" : "bg-gray-100 text-gray-500"
+                          )}>
+                            {String.fromCharCode(65 + i)}
+                          </span>
+                          {opt}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+                      <div className="text-xs font-semibold text-blue-700 mb-1">💡 Explanation</div>
+                      <p className="text-sm text-blue-800">{q.explanation}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {filtered.length === 0 && (
+              <div className="text-center py-16 text-gray-400">
+                <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
+                <p>No questions match your filters.</p>
               </div>
             )}
-          </div>
-        ))}
 
-        {filtered.length === 0 && (
-          <div className="text-center py-16 text-gray-400">
-            <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
-            <p>No questions match your filters.</p>
-          </div>
+            {/* Pagination */}
+            {questions.length === 20 && (
+              <div className="flex justify-center gap-3 pt-2">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-4 py-2 text-sm border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition"
+                >
+                  Previous
+                </button>
+                <span className="px-4 py-2 text-sm text-gray-500">Page {page}</span>
+                <button
+                  onClick={() => setPage(p => p + 1)}
+                  className="px-4 py-2 text-sm border border-blue-200 rounded-xl text-blue-600 hover:bg-blue-50 transition"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

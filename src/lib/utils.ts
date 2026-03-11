@@ -14,6 +14,7 @@ export function formatDate(date: string | Date) {
 }
 
 export function formatTime(seconds: number) {
+  if (!seconds || isNaN(seconds)) return "00:00";
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   const s = seconds % 60;
