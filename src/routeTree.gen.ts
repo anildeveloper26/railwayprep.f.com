@@ -19,6 +19,7 @@ import { Route as LayoutSquadsRouteImport } from './routes/_layout/squads'
 import { Route as LayoutReservationRouteImport } from './routes/_layout/reservation'
 import { Route as LayoutReferralRouteImport } from './routes/_layout/referral'
 import { Route as LayoutPyqRouteImport } from './routes/_layout/pyq'
+import { Route as LayoutPreparationRouteImport } from './routes/_layout/preparation'
 import { Route as LayoutPlannerRouteImport } from './routes/_layout/planner'
 import { Route as LayoutNotificationsRouteImport } from './routes/_layout/notifications'
 import { Route as LayoutMockTestsRouteImport } from './routes/_layout/mock-tests'
@@ -79,6 +80,11 @@ const LayoutReferralRoute = LayoutReferralRouteImport.update({
 const LayoutPyqRoute = LayoutPyqRouteImport.update({
   id: '/pyq',
   path: '/pyq',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutPreparationRoute = LayoutPreparationRouteImport.update({
+  id: '/preparation',
+  path: '/preparation',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutPlannerRoute = LayoutPlannerRouteImport.update({
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/mock-tests': typeof LayoutMockTestsRoute
   '/notifications': typeof LayoutNotificationsRoute
   '/planner': typeof LayoutPlannerRoute
+  '/preparation': typeof LayoutPreparationRoute
   '/pyq': typeof LayoutPyqRoute
   '/referral': typeof LayoutReferralRoute
   '/reservation': typeof LayoutReservationRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/mock-tests': typeof LayoutMockTestsRoute
   '/notifications': typeof LayoutNotificationsRoute
   '/planner': typeof LayoutPlannerRoute
+  '/preparation': typeof LayoutPreparationRoute
   '/pyq': typeof LayoutPyqRoute
   '/referral': typeof LayoutReferralRoute
   '/reservation': typeof LayoutReservationRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/_layout/mock-tests': typeof LayoutMockTestsRoute
   '/_layout/notifications': typeof LayoutNotificationsRoute
   '/_layout/planner': typeof LayoutPlannerRoute
+  '/_layout/preparation': typeof LayoutPreparationRoute
   '/_layout/pyq': typeof LayoutPyqRoute
   '/_layout/referral': typeof LayoutReferralRoute
   '/_layout/reservation': typeof LayoutReservationRoute
@@ -230,6 +239,7 @@ export interface FileRouteTypes {
     | '/mock-tests'
     | '/notifications'
     | '/planner'
+    | '/preparation'
     | '/pyq'
     | '/referral'
     | '/reservation'
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
     | '/mock-tests'
     | '/notifications'
     | '/planner'
+    | '/preparation'
     | '/pyq'
     | '/referral'
     | '/reservation'
@@ -277,6 +288,7 @@ export interface FileRouteTypes {
     | '/_layout/mock-tests'
     | '/_layout/notifications'
     | '/_layout/planner'
+    | '/_layout/preparation'
     | '/_layout/pyq'
     | '/_layout/referral'
     | '/_layout/reservation'
@@ -363,6 +375,13 @@ declare module '@tanstack/react-router' {
       path: '/pyq'
       fullPath: '/pyq'
       preLoaderRoute: typeof LayoutPyqRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/preparation': {
+      id: '/_layout/preparation'
+      path: '/preparation'
+      fullPath: '/preparation'
+      preLoaderRoute: typeof LayoutPreparationRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/planner': {
@@ -464,6 +483,7 @@ interface LayoutRouteChildren {
   LayoutMockTestsRoute: typeof LayoutMockTestsRoute
   LayoutNotificationsRoute: typeof LayoutNotificationsRoute
   LayoutPlannerRoute: typeof LayoutPlannerRoute
+  LayoutPreparationRoute: typeof LayoutPreparationRoute
   LayoutPyqRoute: typeof LayoutPyqRoute
   LayoutReferralRoute: typeof LayoutReferralRoute
   LayoutReservationRoute: typeof LayoutReservationRoute
@@ -485,6 +505,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutMockTestsRoute: LayoutMockTestsRoute,
   LayoutNotificationsRoute: LayoutNotificationsRoute,
   LayoutPlannerRoute: LayoutPlannerRoute,
+  LayoutPreparationRoute: LayoutPreparationRoute,
   LayoutPyqRoute: LayoutPyqRoute,
   LayoutReferralRoute: LayoutReferralRoute,
   LayoutReservationRoute: LayoutReservationRoute,

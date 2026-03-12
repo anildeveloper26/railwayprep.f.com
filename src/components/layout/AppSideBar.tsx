@@ -24,6 +24,7 @@ import {
   Users,
   Radio,
   PenLine,
+  GraduationCap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -36,6 +37,7 @@ const navItems = [
   { icon: LayoutDashboard, label: "Dashboard",        path: "/dashboard" },
   { icon: FileText,        label: "Mock Tests",       path: "/mock-tests" },
   { icon: PenLine,         label: "Real-Time Exam",   path: "/exam" },
+  { icon: GraduationCap,  label: "Exam Guide",        path: "/preparation" },
   { icon: Zap,             label: "Daily Challenge",  path: "/daily-challenge" },
   { icon: BookOpen,        label: "PYQ Bank",         path: "/pyq" },
   { icon: Layers,          label: "Flashcards",       path: "/flashcards" },
